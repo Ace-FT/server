@@ -8,20 +8,20 @@ const inbox = require("./inbox")
  * @param {number} chatId
  * @param {string | undefined} user
  */
-const ace = (bot, chatId, user) => {
+const xxxace = (bot, chatId, user) => {
   bot.sendMessage(
     chatId, `Hey @${user}! Please copy and paste here your wallet address to be added to the notification pool`
   );
 
   const testExp = new RegExp(/0x.{40}/);
   var entryOk = false;
-  console.log(entryOk, testExp);
+  console.log("A", entryOk, testExp);
 
   bot.on("message", async (msg) => {
     const content = msg.text;
-    console.log("Received message", content);
+    console.log("B", "Received message", content);
     entryOk = testExp.test(content);
-    console.log(entryOk);
+    console.log("C", entryOk);
 
 
     if (!entryOk) {
@@ -29,16 +29,56 @@ const ace = (bot, chatId, user) => {
         chatId, `I do not understand, please enter a valid address.`
       );
     } else {
-      await new User({
+
+      let newuser = {
         telegram_id: user,
         wallet_address: content,
         chat_id: chatId,
         orders: 0
-      }).save();
+      };
+      console.log("D", "newuser", newuser);
+      await new User(newuser).save();
       bot.sendMessage(chatId, `Address ${content} added`);
       return;
     }
   });
 };
+
+
+const ace = async (bot, chatId, user, msg) => {
+  bot.sendMessage(
+    chatId, `Hey @${user}! Please copy and paste here your wallet address to be added to the notification pool`
+  );
+
+
+  const content = msg.text.toLowerCase();
+  console.log("A", "Received message", content);
+
+  let regExAddressMatch = content.match(/(\b0x[a-f0-9]{40}\b)/g)
+           
+  var entryOk = regExAddressMatch && regExAddressMatch.length > 0;
+  
+  console.log("B", entryOk, regExAddressMatch);
+
+  if (!entryOk) {
+    bot.sendMessage(
+      chatId, `I do not understand, please enter a valid address.`
+    );
+  } else {
+    let walletAddress = regExAddressMatch[0] ;
+    let newuser = {
+      telegram_id: user,
+      wallet_address: walletAddress,
+      chat_id: chatId,
+      orders: 0
+    };
+    console.log("D", "newuser", newuser);
+    await new User(newuser).save();
+    bot.sendMessage(chatId, `Address ${walletAddress} added`);
+    return;
+  }
+
+};
+
 
 module.exports = ace;

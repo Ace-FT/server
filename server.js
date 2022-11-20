@@ -57,7 +57,7 @@ bot.on("message", (msg) => {
   if (msg.text[0] !== "/") {
     bot.sendMessage(
       chatId,
-      `@${user}, I do not understand your message. Please use / and use one of my commands.`
+      `@${user}, I do not understand your message "${msg.text}". Please use / and use one of my commands.`
     );
   }
 });
@@ -93,8 +93,8 @@ bot.onText(/\/wallet/, (msg, match) => {
 bot.onText(/\/ace/, (msg, match) => {
   const chatId = msg.chat.id;
   const user = msg.from.username;
-
-  ace(bot, chatId, user);
+  console.log("D", chatId, user);
+  ace(bot, chatId, user, msg);
 });
 
 // get all pending to download files from Ace
@@ -103,65 +103,33 @@ bot.onText(/\/inbox/, async (msg, match) => {
   const user = msg.from.username;
 
   var orders = await inbox(user);
-  //console.log("Orders\n", orders);
-  const numberOfReceived = orders.length;
-  console.log("Number of orders", numberOfReceived);
 
-  var answerMessage = "";
-  var listingAnswerMessage = "";
-  var ordersInInbox = 0;
-  for (var i = 0; i < numberOfReceived; i += 1) {
-    const dataset = orders[i];
-    console.log("dataset\n", dataset);
-    var owner = "";
-    var dealStatus = "";
-    var name = "";
-    var price = "";
+  if (orders) {
 
-    if (
-      !(
-        dataset.deals &&
-        dataset.deals[0] &&
-        dataset.deals[0].tasks &&
-        dataset.deals[0].tasks[0] &&
-        dataset.deals[0].tasks[0].status === "COMPLETED"
-      )
-    ) {
-      ordersInInbox += 1;
-      if (
-        dataset.dataset &&
-        dataset.dataset.owner &&
-        dataset.dataset.owner.id
-      ) {
-        owner = dataset.dataset.owner.id;
-        console.log("owner", owner);
-      }
-      if (dataset.dataset && dataset.dataset.name) {
-        name = dataset.dataset.name;
-        console.log("name", name);
-      }
-      if (dataset.datasetprice) {
-        price = dataset.datasetprice;
-        console.log("price", price);
-      }
-      dealStatus = dataset.deals[0].tasks[0].status;
-      console.log("tasks status \n", dealStatus);
+    //console.log("Orders\n", orders);
+    const numberOfReceived = orders.length;
+    console.log("Number of orders", numberOfReceived);
 
-      listingAnswerMessage =
-        listingAnswerMessage +
-        `\n${i + 1}. ${name}\nFrom: ${owner}\nPrice: RLC ${price}\nStatus: ${dealStatus}\n`;
+    var answerMessage = "";
+    var listingAnswerMessage = "";
+
+    for (var i = 0; i < numberOfReceived && i < Number(process.env.MAX_HISTORY_LENGTH); i += 1) {
+      listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
     }
+    if (numberOfReceived === 0) {
+      answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
+    } else {
+      answerMessage = `Hey @${user}, you have ${numberOfReceived} file transfers pending in your inbox.\n`;
+    }
+    answerMessage = answerMessage + listingAnswerMessage;
+
+    console.log(answerMessage);
+    bot.sendMessage(chatId, answerMessage);
+  }
+  else {
+    bot.sendMessage(chatId, `Hey @${user}, There is something wrong. Please try again\n`);
   }
 
-  if (numberOfReceived === 0 || ordersInInbox === 0) {
-    answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
-  } else {
-    answerMessage = `Hey @${user}, you have ${ordersInInbox} files in your inbox.\n`;
-  }
-  answerMessage = answerMessage + listingAnswerMessage;
-
-  console.log(answerMessage);
-  bot.sendMessage(chatId, answerMessage);
 });
 
 // get all received files from Ace
@@ -170,50 +138,36 @@ bot.onText(/\/history/, async (msg, match) => {
   const user = msg.from.username;
 
   var orders = await inbox(user);
-  //console.log("Orders \n", orders);
-  const numberOfReceived = orders.length;
-  console.log("Number of orders", numberOfReceived);
-  var answerMessage = "";
-  numberOfReceived === 0
-    ? (answerMessage = `Sorry @${user}, you haven't received any files yet.`)
-    : (answerMessage = `Hey @${user}, here is your file history.\n`);
 
-  for (var i = 0; i < numberOfReceived; i += 1) {
-    const dataset = orders[i];
-    var owner = "";
-    var dealStatus = "";
-    var name = "";
-    var price = "";
-    if (dataset.dataset && dataset.dataset.owner && dataset.dataset.owner.id) {
-      owner = dataset.dataset.owner.id;
-      console.log("owner", owner);
+  if (orders) {
+
+    const numberOfReceived = orders.length;
+    var answerMessage = "";
+    numberOfReceived === 0
+      ? (answerMessage = `Sorry @${user}, you haven't received any files yet.`)
+      : (answerMessage = `Hey @${user}, here is your file history.\n`);
+
+
+    var answerMessage = "";
+    var listingAnswerMessage = "";
+
+    for (var i = 0; i < numberOfReceived && i < Number(process.env.MAX_HISTORY_LENGTH); i += 1) {
+      listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
     }
-    if (dataset.dataset && dataset.dataset.name) {
-      name = dataset.dataset.name;
-      console.log("name", name);
+    if (numberOfReceived === 0) {
+      answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
+    } else {
+      answerMessage = `Hey @${user}, you have ${numberOfReceived} file transfers pending in your inbox.\n`;
     }
-    if (dataset.datasetprice) {
-      price = dataset.datasetprice;
-      console.log("price", price);
-    }
-    if (
-      dataset.deals &&
-      dataset.deals[0] &&
-      dataset.deals[0].tasks &&
-      dataset.deals[0].tasks[0]
-    ) {
-      dealStatus = dataset.deals[0].tasks[0].status;
-      console.log("tasks status \n", dealStatus);
-    }
-    answerMessage =
-      answerMessage +
-      `\n${
-        i + 1
-      }. ${name}\nFrom: ${owner}\nPrice: RLC ${price}\nStatus: ${dealStatus}\n`;
+    answerMessage +=  listingAnswerMessage;
+
+    console.log(answerMessage);
+    bot.sendMessage(chatId, answerMessage);
+  }
+  else {
+    bot.sendMessage(chatId, `Hey @${user}, There is something wrong. Please try again\n`);
   }
 
-  console.log(answerMessage);
-  bot.sendMessage(chatId, answerMessage);
 });
 
 /////////////////////////////////
@@ -233,11 +187,16 @@ app.get("/users", (req, res) => {
 });
 
 const fetchData = async () => {
+
   setTimeout(async () => {
+
+    var processedTgIds = [];
     var data = null;
     const users = await User.find();
     console.log("length", users.length);
     users.forEach(async (usr) => {
+
+
       var oldOrders = usr.orders;
       var chatid = usr.chat_id;
       const telegramId = usr.telegram_id;
@@ -246,7 +205,12 @@ const fetchData = async () => {
       console.log(walletAddress);
       console.log(telegramId);
       console.log(chatid);
-  
+
+      // Safeguard, let's not process it if the TG is added multiple times
+      if (processedTgIds.indexOf[telegramId] > -1) return;
+
+      processedTgIds.push(telegramId);
+
       var orders = await inbox(telegramId);
       //console.log("Orders\n", orders);
       const newOrders = orders.length;
@@ -263,6 +227,8 @@ const fetchData = async () => {
         await usr.save();
       }
       console.log("\n");
+
+
     });
 
     await fetchData()

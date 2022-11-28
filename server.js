@@ -7,6 +7,7 @@ const { MongoClient } = require("mongodb");
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const TelegramBot = require("node-telegram-bot-api");
+const backgroundProvider = require('./common/backgroundProvider');
 
 const wallet = require("./commands/wallet");
 const welcome = require("./commands/welcome");
@@ -17,7 +18,7 @@ const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL } = process.env;
 const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 const URI = `/webhook/${TELEGRAM_TOKEN}`;
 const WEBHOOK_URL = SERVER_URL + URI;
-const FETCHING_DATA_INTERVAL = 60000 // in ms
+const FETCHING_DATA_INTERVAL = 30000 // in ms
 
 // Initialising app
 const app = express();
@@ -159,7 +160,7 @@ bot.onText(/\/history/, async (msg, match) => {
     } else {
       answerMessage = `Hey @${user}, you have ${numberOfReceived} file transfers pending in your inbox.\n`;
     }
-    answerMessage +=  listingAnswerMessage;
+    answerMessage += listingAnswerMessage;
 
     console.log(answerMessage);
     bot.sendMessage(chatId, answerMessage);
@@ -179,6 +180,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello from server!" });
 });
 
+app.get("/background", (req, res) => {
+  res.json(backgroundProvider.getCurrentBackground());
+});
+
 // for fetching users
 app.get("/users", (req, res) => {
   User.find({}).exec((err, users) => {
@@ -193,43 +198,49 @@ const fetchData = async () => {
     var processedTgIds = [];
     var data = null;
     const users = await User.find();
-    console.log("length", users.length);
-    users.forEach(async (usr) => {
 
+    if (users && users.length > 0) {
+      users.forEach(async (usr) => {
 
-      var oldOrders = usr.orders;
-      var chatid = usr.chat_id;
-      const telegramId = usr.telegram_id;
-      const walletAddress = usr.wallet_address;
-      console.log(usr);
-      console.log(walletAddress);
-      console.log(telegramId);
-      console.log(chatid);
+        try {
+          var oldOrders = usr.orders;
+          var chatid = usr.chat_id;
+          const telegramId = usr.telegram_id;
+          const walletAddress = usr.wallet_address;
+          console.log(usr);
+          console.log(walletAddress);
+          console.log(telegramId);
+          console.log(chatid);
 
-      // Safeguard, let's not process it if the TG is added multiple times
-      if (processedTgIds.indexOf[telegramId] > -1) return;
+          // Safeguard, let's not process it if the TG is added multiple times
+          //if (processedTgIds.indexOf[telegramId] > -1) return;
 
-      processedTgIds.push(telegramId);
+          processedTgIds.push(telegramId);
 
-      var orders = await inbox(telegramId);
-      //console.log("Orders\n", orders);
-      const newOrders = orders.length;
-      console.log("New Number of orders", newOrders);
-      console.log("Old number of orders", oldOrders);
-      if (newOrders !== oldOrders) {
-        if (newOrders > oldOrders) {
-          bot.sendMessage(
-            chatid,
-            `Good news ${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
-          );
+          var orders = await inbox(telegramId);
+          //console.log("Orders\n", orders);
+          const newOrders = orders.length;
+          console.log("New Number of orders", newOrders);
+          console.log("Old number of orders", oldOrders);
+          if (newOrders !== oldOrders) {
+            if (newOrders > oldOrders) {
+              bot.sendMessage(
+                chatid,
+                `Good news ${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
+              );
+            }
+            usr.orders = newOrders;
+            await usr.save();
+          }
+          console.log("\n");
+
         }
-        usr.orders = newOrders;
-        await usr.save();
-      }
-      console.log("\n");
+        catch (exc) {
+          console.log(exc);
+        }
 
-
-    });
+      });
+    }
 
     await fetchData()
   }, FETCHING_DATA_INTERVAL)
@@ -238,7 +249,7 @@ const fetchData = async () => {
 const server = app.listen(process.env.PORT || 5001, async () => {
   console.log("🚀 app is running on port ", process.env.PORT || 5001);
   console.log("Running on process id", process.pid);
-  await init();
+
   await main();
   await fetchData();
 

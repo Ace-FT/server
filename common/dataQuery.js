@@ -1,8 +1,8 @@
-
+require("dotenv").config();
 const crypto = require("crypto-browserify");
 const { IExec, utils } = require('iexec');
 
-const { PRIVATE_KEY } = process.env;
+const { APP_ADDRESS, PRIVATE_KEY, TEE_TAG } = process.env;
 
 const ethProvider = utils.getSignerFromPrivateKey(
   'https://bellecour.iex.ec', // blockchain node URL
@@ -15,7 +15,7 @@ const iexec = new IExec({
 
 
 function generateDatasetNameLookup(requester) {
-    let str = `${process.env.APP_ADDRESS}${requester}`.toLowerCase();
+    let str = `${APP_ADDRESS}${requester}`.toLowerCase();
     return crypto.createHash('sha256').update(str).digest('hex');
 }
 
@@ -23,7 +23,6 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
     isHistory = isHistory ? isHistory : false ; 
     let mapped = await Promise.all(datasets.map(async (item) => {
-
 
         var inboxItem = {
             "id": item.id,
@@ -40,10 +39,10 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
         };
 
         var options = {
-            app: process.env.APP_ADDRESS,
+            app: APP_ADDRESS,
             requester: walletAddress,
-            minTag: process.env.TEE_TAG,
-            maxTag: process.env.TEE_TAG
+            minTag: TEE_TAG,
+            maxTag: TEE_TAG
         };
 
         console.log("options", options);
@@ -102,7 +101,7 @@ const queryAsk = (requester) => {
 
 
     const datasetNameLookup = generateDatasetNameLookup(requester);
-    
+    console.log(datasetNameLookup)
     const query = `
     {
       datasets(

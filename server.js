@@ -13,11 +13,11 @@ const welcome = require("./commands/welcome");
 const ace = require("./commands/ace");
 const inbox = require("./commands/inbox.js");
 
-const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL } = process.env;
+const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL, MAX_HISTORY_LENGTH } = process.env;
 const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 const URI = `/webhook/${TELEGRAM_TOKEN}`;
 const WEBHOOK_URL = SERVER_URL + URI;
-const FETCHING_DATA_INTERVAL = 60000 // in ms
+const FETCHING_DATA_INTERVAL = 45000 // in ms
 
 // Initialising app
 const app = express();
@@ -93,7 +93,6 @@ bot.onText(/\/wallet/, (msg, match) => {
 bot.onText(/\/ace/, (msg, match) => {
   const chatId = msg.chat.id;
   const user = msg.from.username;
-  console.log("D", chatId, user);
   ace(bot, chatId, user, msg);
 });
 
@@ -113,7 +112,7 @@ bot.onText(/\/inbox/, async (msg, match) => {
     var answerMessage = "";
     var listingAnswerMessage = "";
 
-    for (var i = 0; i < numberOfReceived && i < Number(process.env.MAX_HISTORY_LENGTH); i += 1) {
+    for (var i = 0; i < numberOfReceived && i < Number(MAX_HISTORY_LENGTH); i += 1) {
       listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
     }
     if (numberOfReceived === 0) {
@@ -170,6 +169,13 @@ bot.onText(/\/history/, async (msg, match) => {
 
 });
 
+bot.onText(/\/commands/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const user = msg.from.username;
+  console.log("D", chatId, user);
+  ace(bot, chatId, user, msg);
+});
+
 /////////////////////////////////
 ///////// API ENDPOINTS /////////
 /////////////////////////////////
@@ -195,8 +201,6 @@ const fetchData = async () => {
     const users = await User.find();
     console.log("length", users.length);
     users.forEach(async (usr) => {
-
-
       var oldOrders = usr.orders;
       var chatid = usr.chat_id;
       const telegramId = usr.telegram_id;
@@ -220,15 +224,13 @@ const fetchData = async () => {
         if (newOrders > oldOrders) {
           bot.sendMessage(
             chatid,
-            `Good news ${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
+            `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
           );
         }
         usr.orders = newOrders;
         await usr.save();
       }
       console.log("\n");
-
-
     });
 
     await fetchData()
@@ -238,7 +240,7 @@ const fetchData = async () => {
 const server = app.listen(process.env.PORT || 5001, async () => {
   console.log("🚀 app is running on port ", process.env.PORT || 5001);
   console.log("Running on process id", process.pid);
-  await init();
+  //await init();
   await main();
   await fetchData();
 

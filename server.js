@@ -13,6 +13,7 @@ const wallet = require("./commands/wallet");
 const welcome = require("./commands/welcome");
 const ace = require("./commands/ace");
 const inbox = require("./commands/inbox.js");
+const commands = require("./commands/commands.js")
 
 const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL, MAX_HISTORY_LENGTH } = process.env;
 const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
@@ -172,7 +173,7 @@ bot.onText(/\/commands/, (msg, match) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
     console.log("D", chatId, user);
-    ace(bot, chatId, user, msg);
+    commands(bot, chatId, user);
 });
 
 /////////////////////////////////

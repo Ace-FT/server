@@ -31,10 +31,6 @@ app.use(bodyParser.json());
 const client = new MongoClient(MONGO_URL);
 
 const main = async() => {
-    //   await client.connect();
-    //   console.log("Connexion OK ✅");
-    //   const db = client.db("Ace");
-    //   const collection = db.collections("Users");
     await mongoose.connect(MONGO_URL);
     console.log("Connexion OK ✅");
 };
@@ -47,7 +43,6 @@ const init = async() => {
     const res = await axios.get(
         `${TELEGRAM_API_ENDPOINT}/setWebhook?url=${WEBHOOK_URL}`
     );
-    console.log(res.data);
 };
 
 // reaction on receiving message without command
@@ -55,7 +50,6 @@ bot.on("message", (msg) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
     const content = msg.text;
-    console.log("Received message", content);
     if (msg.text[0] !== "/") {
         bot.sendMessage(
             chatId,
@@ -106,10 +100,7 @@ bot.onText(/\/inbox/, async(msg, match) => {
     var orders = await inbox(user);
 
     if (orders) {
-
-        //console.log("Orders\n", orders);
         const numberOfReceived = orders.length;
-        console.log("Number of orders", numberOfReceived);
 
         var answerMessage = "";
         var listingAnswerMessage = "";
@@ -124,7 +115,6 @@ bot.onText(/\/inbox/, async(msg, match) => {
         }
         answerMessage = answerMessage + listingAnswerMessage;
 
-        console.log(answerMessage);
         bot.sendMessage(chatId, answerMessage);
     } else {
         bot.sendMessage(chatId, `Hey @${user}, There is something wrong. Please try again\n`);
@@ -172,7 +162,6 @@ bot.onText(/\/history/, async(msg, match) => {
 bot.onText(/\/commands/, (msg, match) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
-    console.log("D", chatId, user);
     commands(bot, chatId, user);
 });
 
@@ -212,10 +201,7 @@ const fetchData = async() => {
                     var chatid = usr.chat_id;
                     const telegramId = usr.telegram_id;
                     const walletAddress = usr.wallet_address;
-                    console.log(usr);
-                    console.log(walletAddress);
-                    console.log(telegramId);
-                    console.log(chatid);
+                    console.log("usr", usr, "walletAddress", walletAddress ,  "telegramId", telegramId, "chatid", chatid) ;
 
                     // Safeguard, let's not process it if the TG is added multiple times
                     //if (processedTgIds.indexOf[telegramId] > -1) return;
@@ -223,7 +209,6 @@ const fetchData = async() => {
                     processedTgIds.push(telegramId);
 
                     var orders = await inbox(telegramId);
-                    //console.log("Orders\n", orders);
                     const newOrders = orders.length;
                     console.log("New Number of orders", newOrders);
                     console.log("Old number of orders", oldOrders);
@@ -237,7 +222,6 @@ const fetchData = async() => {
                         usr.orders = newOrders;
                         await usr.save();
                     }
-                    console.log("\n");
 
                 } catch (exc) {
                     console.log(exc);

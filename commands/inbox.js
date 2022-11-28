@@ -18,6 +18,16 @@ const httpLink = createHttpLink({
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
+    }
+  }
 });
 
 
@@ -28,11 +38,9 @@ const client = new ApolloClient({
 const inbox = async (user) => {
 
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
-
-  console.log(userSubscription)
   const walletAddress = userSubscription.wallet_address;
-  console.log("WA", walletAddress)
 
+  console.log("userSubscription", userSubscription, "WA", walletAddress) ;
 
   if (walletAddress) {
     const query = dataQuery.queryAsk(walletAddress);
@@ -42,10 +50,8 @@ const inbox = async (user) => {
       })
       .then(async (data) => {
 
-        console.log("DATA", JSON.stringify(data, null, 2));
-
         if (data && data.data && data.data.datasets) {
-          //console.log("\nDataset orders\n", data.data.datasetOrders);
+          console.log("\n ALL Datasets \n", data.data.datasets);
 
           let pendingItems =  dataQuery.mapInboxOrders(walletAddress, data.data.datasets);
           return pendingItems;

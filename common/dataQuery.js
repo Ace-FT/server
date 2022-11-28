@@ -21,6 +21,8 @@ function generateDatasetNameLookup(requester) {
 
 async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
+    console.log("mapInboxOrders", walletAddress, "datasets.length", datasets.length ) ; 
+
     isHistory = isHistory ? isHistory : false ; 
     let mapped = await Promise.all(datasets.map(async (item) => {
 
@@ -45,8 +47,6 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
             maxTag: TEE_TAG
         };
 
-        console.log("options", options);
-
         var orderBook = await iexec.orderbook.fetchDatasetOrderbook(
             item.id, options
         );
@@ -69,10 +69,12 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
                 item.orders[0].deals.length > 0
             ) {
 
-                if (!isHistory) return null;
+                if (!isHistory) {
+                  console.log("Ignored this dataset ", item.id) ;
+                  return null;
+                }
 
                 inboxItem.dealid = item.orders[0].deals[0].id;
-                console.log("item.orders[0].deals[0].startTime", Number(item.orders[0].deals[0].startTime));
                 inboxItem.downloadDate = new Date(Number(item.orders[0].deals[0].startTime) * 1000);
                 inboxItem.status = "ACTIVE";
 
@@ -92,8 +94,6 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
         return null != item && item.to && item.to.toLowerCase() === walletAddress.toLowerCase();
     })
 
-    console.log("mapped", mapped);
-
     return mapped;
 }
 
@@ -101,7 +101,7 @@ const queryAsk = (requester) => {
 
 
     const datasetNameLookup = generateDatasetNameLookup(requester);
-    console.log(datasetNameLookup)
+
     const query = `
     {
       datasets(

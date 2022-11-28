@@ -15,9 +15,20 @@ const httpLink = createHttpLink({
   fetch: fetch,
 });
 
+
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
+    }
+  }
 });
 
 
@@ -39,11 +50,8 @@ const inbox = async (user) => {
       })
       .then(async (data) => {
 
-        console.log("DATA", JSON.stringify(data, null, 2));
-
         if (data && data.data && data.data.datasets) {
           //console.log("\nDataset orders\n", data.data.datasetOrders);
-
           let pendingItems =  dataQuery.mapInboxOrders(walletAddress, data.data.datasets, true);
           return pendingItems;
         }

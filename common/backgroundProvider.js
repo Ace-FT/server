@@ -9,7 +9,7 @@ var lastApiCall = new Date(1999, 11, 16);
 const topics = BACKGROUND_TOPICS.split(',') ; 
 
 
-const providerUrl = `https://api.unsplash.com/photos/random?query=nfts&query=sustainability&query=_QUERY_&count=6&client_id=${UNSPLASH_API_KEY}`
+const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=6&client_id=${UNSPLASH_API_KEY}`
 
 
 const fetchNew = () => {

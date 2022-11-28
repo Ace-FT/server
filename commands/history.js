@@ -51,7 +51,6 @@ const inbox = async (user) => {
       .then(async (data) => {
 
         if (data && data.data && data.data.datasets) {
-          //console.log("\nDataset orders\n", data.data.datasetOrders);
           let pendingItems =  dataQuery.mapInboxOrders(walletAddress, data.data.datasets, true);
           return pendingItems;
         }

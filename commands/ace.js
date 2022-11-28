@@ -67,7 +67,6 @@ const ace = async (bot, chatId, user, msg) => {
       chat_id: chatId,
       orders: 0
     };
-    console.log("D", "newuser", newuser);
     await new User(newuser).save();
     bot.sendMessage(chatId, `Address ${walletAddress} added`);
     return;

@@ -17,4 +17,4 @@ const commands = async (bot, chatId, user) => {
   bot.sendMessage(chatId, `${message}`);
 };
 
-module.exports(commands);
+module.exports = commands;

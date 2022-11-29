@@ -30,7 +30,7 @@ const fetchNew = () => {
             .then(res => {
                 try {
                     let ret = res.json() ;
-                    console.log("Received from unsplash json", ret);
+                    console.log("AA - Received from unsplash json", ret);
                     return ret;
                 }
                 catch (f) {
@@ -40,7 +40,7 @@ const fetchNew = () => {
                 }
             }
             ).then((json) => {
-                console.log("Received from unsplash json", json);
+                console.log("BB - setting bgArray ", json);
                 bgArray = json;
             });
     }

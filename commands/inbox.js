@@ -10,10 +10,12 @@ const User = require("../models/user");
 
 const dataQuery = require("../common/dataQuery") ;
 
-const httpLink = createHttpLink({
+const linkConfig ={
   uri: process.env.API_URL,
   fetch: fetch,
-});
+}
+
+const httpLink = createHttpLink(linkConfig);
 
 const client = new ApolloClient({
   link: httpLink,
@@ -40,7 +42,7 @@ const inbox = async (user) => {
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
   const walletAddress = userSubscription.wallet_address;
 
-  console.log("userSubscription", userSubscription, "WA", walletAddress, "httpLink", JSON.stringify(httpLink, null, 2) ) ;
+  console.log("userSubscription", userSubscription, "WA", walletAddress, "linkConfig", JSON.stringify(linkConfig,null, 2) ) ;
 
   if (walletAddress) {
     const query = dataQuery.queryAsk(walletAddress);

@@ -53,7 +53,7 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
 
         if (orderBook && orderBook.orders.length > 0) {
-            console.log("ORDER BOOK", JSON.stringify(orderBook, null, 2));
+            //console.log("ORDER BOOK", JSON.stringify(orderBook, null, 2));
             inboxItem.status = orderBook.orders[0].status;
             inboxItem.to = orderBook.orders[0].order.requesterrestrict;
             inboxItem.orderHash = orderBook.orders[0].orderHash;
@@ -70,7 +70,7 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
             ) {
 
                 if (!isHistory) {
-                  console.log("Ignored this dataset ", item.id) ;
+                  console.log("Ignored this dataset ", item.id, "for account", walletAddress , "no longer in inbox") ;
                   return null;
                 }
 

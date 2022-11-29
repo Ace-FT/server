@@ -150,8 +150,7 @@ function getCurrentBackground() {
         console.log(bgArray.length, "images cached. Now service image for creative mode:",currentBg.id,  currentBg.description, currentBg.urls.full) ;
     }
 
-
-    if (bgArray.length == 0) {
+    if (bgArray.length == 0 || !currentBg) {
         fetchNew();
     }
 
@@ -159,6 +158,8 @@ function getCurrentBackground() {
 }
 
 fetchNew();
+
+setInterval(fetchNew(), 10 * 60 * 1000) ,
 
 
 

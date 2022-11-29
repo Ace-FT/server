@@ -209,19 +209,29 @@ const fetchData = async() => {
                     processedTgIds.push(telegramId);
 
                     var orders = await inbox(telegramId);
-                    const newOrders = orders.length;
-                    console.log("New Number of orders", newOrders);
-                    console.log("Old number of orders", oldOrders);
-                    if (newOrders !== oldOrders) {
-                        if (newOrders > oldOrders) {
-                            bot.sendMessage(
-                                chatid,
-                                `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
-                            );
+                    if (orders)
+                    {
+                        const newOrders = orders.length;
+                        console.log("New Number of orders", newOrders);
+                        console.log("Old number of orders", oldOrders);
+                        if (newOrders !== oldOrders) {
+                            if (newOrders > oldOrders) {
+                                bot.sendMessage(
+                                    chatid,
+                                    `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
+                                );
+                            }
+                            usr.orders = newOrders;
+                            await usr.save();
                         }
-                        usr.orders = newOrders;
+                    }
+                    else
+                    {
+                        usr.orders = 0;
                         await usr.save();
                     }
+                    
+                   
 
                 } catch (exc) {
                     console.log(exc);

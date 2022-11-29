@@ -160,7 +160,7 @@ function getCurrentBackground() {
 
 fetchNew();
 
-setInterval(fetchNew(), 10 * 60 * 1000) ,
+setInterval(fetchNew, 10 * 60 * 1000) ,
 
 
 

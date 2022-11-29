@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 // Initialising NoSQL DB
 const client = new MongoClient(MONGO_URL);
 
-const main = async() => {
+const main = async () => {
     await mongoose.connect(MONGO_URL);
     console.log("Connexion OK ✅");
 };
@@ -39,7 +39,7 @@ const main = async() => {
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 // initialise webhook and check if set
-const init = async() => {
+const init = async () => {
     const res = await axios.get(
         `${TELEGRAM_API_ENDPOINT}/setWebhook?url=${WEBHOOK_URL}`
     );
@@ -93,7 +93,7 @@ bot.onText(/\/ace/, (msg, match) => {
 });
 
 // get all pending to download files from Ace
-bot.onText(/\/inbox/, async(msg, match) => {
+bot.onText(/\/inbox/, async (msg, match) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -123,7 +123,7 @@ bot.onText(/\/inbox/, async(msg, match) => {
 });
 
 // get all received files from Ace
-bot.onText(/\/history/, async(msg, match) => {
+bot.onText(/\/history/, async (msg, match) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -185,23 +185,23 @@ app.get("/users", (req, res) => {
     });
 });
 
-const fetchData = async() => {
+const fetchData = async () => {
 
-    setTimeout(async() => {
+    setTimeout(async () => {
 
         var processedTgIds = [];
         var data = null;
         const users = await User.find();
 
         if (users && users.length > 0) {
-            users.forEach(async(usr) => {
+            users.forEach(async (usr) => {
 
                 try {
                     var oldOrders = usr.orders;
                     var chatid = usr.chat_id;
                     const telegramId = usr.telegram_id;
                     const walletAddress = usr.wallet_address;
-                    console.log("usr", usr, "walletAddress", walletAddress ,  "telegramId", telegramId, "chatid", chatid) ;
+                    console.log("usr", usr, "walletAddress", walletAddress, "telegramId", telegramId, "chatid", chatid);
 
                     // Safeguard, let's not process it if the TG is added multiple times
                     //if (processedTgIds.indexOf[telegramId] > -1) return;
@@ -209,29 +209,32 @@ const fetchData = async() => {
                     processedTgIds.push(telegramId);
 
                     var orders = await inbox(telegramId);
-                    if (orders)
-                    {
-                        const newOrders = orders.length;
-                        console.log("New Number of orders", newOrders);
-                        console.log("Old number of orders", oldOrders);
-                        if (newOrders !== oldOrders) {
-                            if (newOrders > oldOrders) {
-                                bot.sendMessage(
-                                    chatid,
-                                    `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
-                                );
+                    console.log("orders", orders);
+                    try {
+                        if (orders) {
+                            const newOrders = orders.length;
+                            console.log("New Number of orders", newOrders);
+                            console.log("Old number of orders", oldOrders);
+                            if (newOrders !== oldOrders) {
+                                if (newOrders > oldOrders) {
+                                    bot.sendMessage(
+                                        chatid,
+                                        `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
+                                    );
+                                }
+                                usr.orders = newOrders;
+                                await usr.save();
                             }
-                            usr.orders = newOrders;
+                        }
+                        else {
+                            usr.orders = 0;
                             await usr.save();
                         }
                     }
-                    else
-                    {
-                        usr.orders = 0;
-                        await usr.save();
+                    catch (excep) {
+                        console.log(excep);
                     }
-                    
-                   
+
 
                 } catch (exc) {
                     console.log(exc);
@@ -244,7 +247,7 @@ const fetchData = async() => {
     }, FETCHING_DATA_INTERVAL)
 };
 
-const server = app.listen(process.env.PORT || 5001, async() => {
+const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("Running on process id", process.pid);
     //await init();

@@ -29,11 +29,14 @@ const fetchNew = () => {
         fetch(queryUrl, settings)
             .then(res => {
                 try {
-                    return res.json()
+                    let ret = res.json() ;
+                    console.log("Received from unsplash json", ret);
+                    return ret;
                 }
                 catch (f) {
-                    console.log("ERROR");
-                    bgArray = defaultBackgrounds.list ;
+                    console.log("ERROR", f, "using default image list");
+                    return defaultBackgrounds.list ;
+                    // bgArray = defaultBackgrounds.list ;
                 }
             }
             ).then((json) => {
@@ -81,8 +84,7 @@ function getCurrentBackground() {
 
 fetchNew();
 
-setInterval(fetchNew, 10 * 60 * 1000),
+setInterval(fetchNew, 15 * 60 * 1000),
 
 
-
-    module.exports = { getCurrentBackground };
+module.exports = { getCurrentBackground };

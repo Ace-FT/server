@@ -247,6 +247,11 @@ const fetchData = async () => {
     }, FETCHING_DATA_INTERVAL)
 };
 
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception unhandled exception: ' + err);
+});
+
+
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("Running on process id", process.pid);

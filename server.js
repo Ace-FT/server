@@ -211,7 +211,7 @@ const fetchData = async () => {
                     var orders = await inbox(telegramId);
                     console.log("orders", orders);
                     try {
-                        if (orders) {
+                        if (undefined !=orders && orders) {
                             const newOrders = orders.length;
                             console.log("New Number of orders", newOrders);
                             console.log("Old number of orders", oldOrders);

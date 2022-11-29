@@ -40,7 +40,7 @@ const inbox = async (user) => {
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
   const walletAddress = userSubscription.wallet_address;
 
-  console.log("userSubscription", userSubscription, "WA", walletAddress) ;
+  console.log("userSubscription", userSubscription, "WA", walletAddress, "httpLink", httpLink) ;
 
   if (walletAddress) {
     const query = dataQuery.queryAsk(walletAddress);

@@ -123,6 +123,7 @@ const fetchNew = () => {
                 }
             }
             ).then((json) => {
+                console.log("Received from unsplash json", json) ; 
                 bgArray = json;
             });
     }

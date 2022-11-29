@@ -3,6 +3,7 @@ const crypto = require("crypto-browserify");
 const { IExec, utils } = require('iexec');
 
 const { APP_ADDRESS, PRIVATE_KEY, TEE_TAG } = process.env;
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 const ethProvider = utils.getSignerFromPrivateKey(
   'https://bellecour.iex.ec', // blockchain node URL
@@ -21,7 +22,7 @@ function generateDatasetNameLookup(requester) {
 
 async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
-    console.log("mapInboxOrders", walletAddress, "datasets.length", datasets.length ) ; 
+  if (DEBUG) console.log("mapInboxOrders", walletAddress, "datasets.length", datasets.length ) ; 
 
     isHistory = isHistory ? isHistory : false ; 
     let mapped = await Promise.all(datasets.map(async (item) => {
@@ -70,7 +71,7 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
             ) {
 
                 if (!isHistory) {
-                  console.log("Ignored this dataset ", item.id, "for account", walletAddress , "no longer in inbox") ;
+                  if (DEBUG) console.log("Ignored this dataset ", item.id, "for account", walletAddress , "no longer in inbox") ;
                   return null;
                 }
 

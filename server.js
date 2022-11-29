@@ -20,6 +20,7 @@ const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 const URI = `/webhook/${TELEGRAM_TOKEN}`;
 const WEBHOOK_URL = SERVER_URL + URI;
 const FETCHING_DATA_INTERVAL = 30000 // in ms
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 // Initialising app
 const app = express();
@@ -151,7 +152,7 @@ bot.onText(/\/history/, async (msg, match) => {
         }
         answerMessage += listingAnswerMessage;
 
-        console.log(answerMessage);
+        if (DEBUG) console.log(answerMessage);
         bot.sendMessage(chatId, answerMessage);
     } else {
         bot.sendMessage(chatId, `Hey @${user}, There is something wrong. Please try again\n`);
@@ -201,7 +202,7 @@ const fetchData = async () => {
                     var chatid = usr.chat_id;
                     const telegramId = usr.telegram_id;
                     const walletAddress = usr.wallet_address;
-                    console.log("usr", usr, "walletAddress", walletAddress, "telegramId", telegramId, "chatid", chatid);
+                    if (DEBUG) console.log("usr", usr, "walletAddress", walletAddress, "telegramId", telegramId, "chatid", chatid);
 
                     // Safeguard, let's not process it if the TG is added multiple times
                     //if (processedTgIds.indexOf[telegramId] > -1) return;
@@ -209,12 +210,13 @@ const fetchData = async () => {
                     processedTgIds.push(telegramId);
 
                     var orders = await inbox(telegramId);
-                    console.log("orders", orders);
+                    
+                    if (DEBUG) console.log(undefined != orders && null != orders ? orders.length: 0, "orders for ", walletAddress);
+
                     try {
                         if (undefined !=orders && orders) {
                             const newOrders = orders.length;
-                            console.log("New Number of orders", newOrders);
-                            console.log("Old number of orders", oldOrders);
+                            if (DEBUG) console.log("Number of orders new:", newOrders, "old:", oldOrders);
                             if (newOrders !== oldOrders) {
                                 if (newOrders > oldOrders) {
                                     bot.sendMessage(
@@ -249,6 +251,7 @@ const fetchData = async () => {
 
 process.on('uncaughtException', function(err) {
     console.log('Caught exception unhandled exception: ' + err);
+    console.error(err) ;
 });
 
 

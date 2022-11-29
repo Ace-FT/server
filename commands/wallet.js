@@ -1,5 +1,6 @@
 const TelegramBot = require("node-telegram-bot-api");
 const User = require("../models/user");
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 
 /**
@@ -11,7 +12,7 @@ const User = require("../models/user");
 const wallet = async (bot, chatId, user) => {
   const data = await User.findOne({ telegram_id: user }).exec();
   const res = data.wallet_address;
-  console.log("res", res);
+  if (DEBUG) console.log("res", res);
   bot.sendMessage(
     chatId, `The wallet address linked to @${user} is ${res}`
   );

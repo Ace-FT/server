@@ -57,6 +57,7 @@ const inbox = async (user) => {
       })
       .catch((err) => {
         console.log("Error data fetching", err);
+        console.error(err);
       });
 
     return res;

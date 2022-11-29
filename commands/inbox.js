@@ -7,8 +7,8 @@ const setContext = require("apollo-link-context").setContext;
 const InMemoryCache = require("apollo-cache-inmemory").InMemoryCache;
 const TelegramBot = require("node-telegram-bot-api");
 const User = require("../models/user");
-
 const dataQuery = require("../common/dataQuery") ;
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 const linkConfig ={
   uri: process.env.API_URL,
@@ -42,7 +42,7 @@ const inbox = async (user) => {
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
   const walletAddress = userSubscription.wallet_address;
 
-  console.log("userSubscription", userSubscription, "WA", walletAddress, "linkConfig", JSON.stringify(linkConfig,null, 2) ) ;
+    if (DEBUG) console.log("userSubscription", userSubscription, "WA", walletAddress ) ;
 
   if (walletAddress) {
     const query = dataQuery.queryAsk(walletAddress);

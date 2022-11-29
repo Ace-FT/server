@@ -2,6 +2,7 @@ const defaultBackgrounds = require("./defaultBackgrounds.js") ;
 
 const { UNSPLASH_API_KEY } = process.env;
 const { BACKGROUND_DISPLAY_MINUTES, BACKGROUND_FETCH_INTERVAL_MINUTES, BACKGROUND_TOPICS } = process.env;
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 
 var bgArray = null;
@@ -22,7 +23,7 @@ const fetchNew = () => {
     if (elapsedMinutes > Number(BACKGROUND_FETCH_INTERVAL_MINUTES)) {
         let queryUrl = providerUrl.replace("_QUERY_", topics[Math.floor(Math.random() * topics.length)]);
         lastApiCall = new Date();
-        console.log("fetching from unsplash", queryUrl);
+        if (DEBUG) console.log("fetching from unsplash", queryUrl);
 
         let settings = { method: "Get" };
 
@@ -30,22 +31,23 @@ const fetchNew = () => {
             .then(res => {
                 try {
                     let ret = res.json() ;
-                    console.log("AA - Received from unsplash json", ret);
+                    if (DEBUG) console.log("AA - Received from unsplash json", ret);
                     return ret;
                 }
                 catch (f) {
                     console.log("ERROR", f, "using default image list");
+                    console.error(f);
                     return defaultBackgrounds.list ;
                     // bgArray = defaultBackgrounds.list ;
                 }
             }
             ).then((json) => {
-                console.log("BB - setting bgArray ", json);
+                if (DEBUG) console.log("BB - setting bgArray ", json);
                 bgArray = json;
             });
     }
     else {
-        console.log("I will not call unsplash yet");
+        if (DEBUG) console.log("I will not call unsplash yet");
     }
 }
 
@@ -68,7 +70,7 @@ function getCurrentBackground() {
         if ((!currentBg || elapsedMinutes > Number(BACKGROUND_DISPLAY_MINUTES)) && bgArray.length > 0) {
             lastRenewTime = new Date();
             currentBg = bgArray.shift();
-            console.log(bgArray.length, "images cached. Now service image for creative mode:", currentBg.id, currentBg.description, currentBg.urls.full);
+            if (DEBUG) console.log(bgArray.length, "images cached. Now service image for creative mode:", currentBg.id, currentBg.description, currentBg.urls.full);
         }
 
         if (bgArray.length == 0 || !currentBg) {
@@ -77,6 +79,7 @@ function getCurrentBackground() {
     }
     catch (exc) {
         console.log("exc", exc);
+        console.error(exc);
     }
 
     return currentBg;

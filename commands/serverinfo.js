@@ -28,6 +28,9 @@ const serverinfo = async (bot, chatId, user) => {
   const data = await User.findOne({ telegram_id: user }).exec();
   const address = data.wallet_address;
   let info = "";
+  
+  console.log("process.env.AUTHORIZED_SERVERINFO_WALLETS", process.env.AUTHORIZED_SERVERINFO_WALLETS) ;
+
   if (process.env.AUTHORIZED_SERVERINFO_WALLETS.split(',').indexOf(address) > -1) {
     Object.keys(os).map((method) => {
       try {

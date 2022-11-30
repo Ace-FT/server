@@ -5,7 +5,7 @@ const { BACKGROUND_DISPLAY_MINUTES, BACKGROUND_FETCH_INTERVAL_MINUTES, BACKGROUN
 const DEBUG = process.env.LOGLEVEL=="debug";
 
 
-var bgArray = null;
+var bgArray = defaultBackgrounds.list;
 var currentBg = null;
 var lastRenewTime = new Date(1999, 11, 16);
 var lastApiCall = new Date(1999, 11, 16);

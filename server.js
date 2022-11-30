@@ -13,7 +13,8 @@ const wallet = require("./commands/wallet");
 const welcome = require("./commands/welcome");
 const ace = require("./commands/ace");
 const inbox = require("./commands/inbox.js");
-const commands = require("./commands/commands.js")
+const commands = require("./commands/commands.js");
+const serverinfo = require("./commands/serverinfo");
 
 const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL, MAX_HISTORY_LENGTH } = process.env;
 const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
@@ -85,6 +86,16 @@ bot.onText(/\/wallet/, (msg, match) => {
 
     wallet(bot, chatId, user);
 });
+
+
+// to see address linked to the user's account
+bot.onText(/\/serverinfo/, (msg, match) => {
+    const chatId = msg.chat.id;
+    const user = msg.from.username;
+
+    serverinfo(bot, chatId, user);
+});
+
 
 // to wallet address to database when sending /ace command
 bot.onText(/\/ace/, (msg, match) => {

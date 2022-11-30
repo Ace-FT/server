@@ -67,6 +67,9 @@ function getCurrentBackground() {
     currentBg = null == currentBg ? defaultBackgrounds.list[0] : currentBg ; 
 
     try {
+
+        bgArray = undefined == bgArray || null == bgArray ?  defaultBackgrounds.list : bgArray ;
+
         if ((!currentBg || elapsedMinutes > Number(BACKGROUND_DISPLAY_MINUTES)) && bgArray.length > 0) {
             lastRenewTime = new Date();
             currentBg = bgArray.shift();

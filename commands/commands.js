@@ -10,7 +10,7 @@ const User = require("../models/user");
  */
 const commands = async (bot, chatId, user) => {
   var message = `Here are all the available commands that I can understand\n`;
-  message += `- /ace - Link your wallet and add your address to notification pool\n`;
+  message += `- /ace <0x.......> - Link your wallet and add your address to notification pool\n`;
   message += `- /inbox - See all the pending files you haven't dowloaded yet\n`;
   message += `- /history - See the history of all the files you received\n`;
   message += `- /wallet - get the wallet address linked to Telegram pool\n`;

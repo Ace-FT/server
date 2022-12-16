@@ -16,13 +16,10 @@ const xxxace = (bot, chatId, user) => {
 
   const testExp = new RegExp(/0x.{40}/);
   var entryOk = false;
-  console.log("A", entryOk, testExp);
 
   bot.on("message", async (msg) => {
     const content = msg.text;
-    console.log("B", "Received message", content);
     entryOk = testExp.test(content);
-    console.log("C", entryOk);
 
 
     if (!entryOk) {
@@ -37,7 +34,7 @@ const xxxace = (bot, chatId, user) => {
         chat_id: chatId,
         orders: 0
       };
-      console.log("D", "newuser", newuser);
+    
       await new User(newuser).save();
       bot.sendMessage(chatId, `Address ${content} added`);
       return;
@@ -51,15 +48,12 @@ const ace = async (bot, chatId, user, msg) => {
     chatId, `Hey @${user}! Please copy and paste here your wallet address to be added to the notification pool`
   );
 
-
   const content = msg.text.toLowerCase();
-  console.log("A", "Received message", content);
-
+  
   let regExAddressMatch = content.match(/(\b0x[a-f0-9]{40}\b)/g)
            
   var entryOk = regExAddressMatch && regExAddressMatch.length > 0;
   
-  console.log("B", entryOk, regExAddressMatch);
 
   if (!entryOk) {
     bot.sendMessage(
@@ -73,7 +67,6 @@ const ace = async (bot, chatId, user, msg) => {
       chat_id: chatId,
       orders: 0
     };
-    console.log("D", "newuser", newuser);
     await new User(newuser).save();
     bot.sendMessage(chatId, `Address ${walletAddress} added`);
     return;

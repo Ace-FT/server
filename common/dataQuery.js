@@ -3,6 +3,7 @@ const crypto = require("crypto-browserify");
 const { IExec, utils } = require('iexec');
 
 const { APP_ADDRESS, PRIVATE_KEY, TEE_TAG } = process.env;
+const DEBUG = process.env.LOGLEVEL=="debug";
 
 const ethProvider = utils.getSignerFromPrivateKey(
   'https://bellecour.iex.ec', // blockchain node URL
@@ -20,6 +21,8 @@ function generateDatasetNameLookup(requester) {
 }
 
 async function mapInboxOrders(walletAddress, datasets, isHistory) {
+
+  if (DEBUG) console.log("mapInboxOrders", walletAddress, "datasets.length", datasets.length ) ; 
 
     isHistory = isHistory ? isHistory : false ; 
     let mapped = await Promise.all(datasets.map(async (item) => {
@@ -45,15 +48,13 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
             maxTag: TEE_TAG
         };
 
-        console.log("options", options);
-
         var orderBook = await iexec.orderbook.fetchDatasetOrderbook(
             item.id, options
         );
 
 
         if (orderBook && orderBook.orders.length > 0) {
-            console.log("ORDER BOOK", JSON.stringify(orderBook, null, 2));
+            //console.log("ORDER BOOK", JSON.stringify(orderBook, null, 2));
             inboxItem.status = orderBook.orders[0].status;
             inboxItem.to = orderBook.orders[0].order.requesterrestrict;
             inboxItem.orderHash = orderBook.orders[0].orderHash;
@@ -69,10 +70,12 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
                 item.orders[0].deals.length > 0
             ) {
 
-                if (!isHistory) return null;
+                if (!isHistory) {
+                  if (DEBUG) console.log("Ignored this dataset ", item.id, "for account", walletAddress , "no longer in inbox") ;
+                  return null;
+                }
 
                 inboxItem.dealid = item.orders[0].deals[0].id;
-                console.log("item.orders[0].deals[0].startTime", Number(item.orders[0].deals[0].startTime));
                 inboxItem.downloadDate = new Date(Number(item.orders[0].deals[0].startTime) * 1000);
                 inboxItem.status = "ACTIVE";
 
@@ -92,8 +95,6 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
         return null != item && item.to && item.to.toLowerCase() === walletAddress.toLowerCase();
     })
 
-    console.log("mapped", mapped);
-
     return mapped;
 }
 
@@ -101,7 +102,7 @@ const queryAsk = (requester) => {
 
 
     const datasetNameLookup = generateDatasetNameLookup(requester);
-    console.log(datasetNameLookup)
+
     const query = `
     {
       datasets(

@@ -7,17 +7,29 @@ const setContext = require("apollo-link-context").setContext;
 const InMemoryCache = require("apollo-cache-inmemory").InMemoryCache;
 const TelegramBot = require("node-telegram-bot-api");
 const User = require("../models/user");
+const dataQuery = require("../common/dataQuery");
+const DEBUG = process.env.LOGLEVEL == "debug";
 
-const dataQuery = require("../common/dataQuery") ;
+const linkConfig = {
+    uri: process.env.API_URL,
+    fetch: fetch,
+}
 
-const httpLink = createHttpLink({
-  uri: process.env.API_URL,
-  fetch: fetch,
-});
+const httpLink = createHttpLink(linkConfig);
 
 const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
+    link: httpLink,
+    cache: new InMemoryCache(),
+    defaultOptions: {
+        watchQuery: {
+            fetchPolicy: 'no-cache',
+            errorPolicy: 'ignore',
+        },
+        query: {
+            fetchPolicy: 'no-cache',
+            errorPolicy: 'all',
+        }
+    }
 });
 
 
@@ -25,39 +37,34 @@ const client = new ApolloClient({
  * Returns the pending files at wallet address
  * @param {string | undefined} user
  */
-const inbox = async (user) => {
+const inbox = async(user) => {
 
-  const userSubscription = await User.findOne({ telegram_id: user }).exec();
+    const userSubscription = await User.findOne({ telegram_id: user }).exec();
+    const walletAddress = userSubscription.wallet_address;
 
-  console.log(userSubscription)
-  const walletAddress = userSubscription.wallet_address;
-  console.log("WA", walletAddress)
+    if (DEBUG) console.log("userSubscription", userSubscription, "WA", walletAddress);
 
+    if (walletAddress) {
+        const query = dataQuery.queryAsk(walletAddress);
+        const res = client
+            .query({
+                query: gql(query),
+            })
+            .then(async(data) => {
 
-  if (walletAddress) {
-    const query = dataQuery.queryAsk(walletAddress);
-    const res = client
-      .query({
-        query: gql(query),
-      })
-      .then(async (data) => {
-        console.log("DATA", JSON.stringify(data, null, 2));
+                if (data && data.data && data.data.datasets) {
+                    let pendingItems = dataQuery.mapInboxOrders(walletAddress, data.data.datasets);
+                    return pendingItems;
+                }
+            })
+            .catch((err) => {
+                console.log("Error data fetching", err);
+            });
 
-        if (data && data.data && data.data.datasets) {
-          //console.log("\nDataset orders\n", data.data.datasetOrders);
+        return res;
+    }
 
-          let pendingItems =  dataQuery.mapInboxOrders(walletAddress, data.data.datasets);
-          return pendingItems;
-        }
-      })
-      .catch((err) => {
-        console.log("Error data fetching", err);
-      });
-
-    return res;
-  }
-
-  return null;
+    return null;
 
 };
 

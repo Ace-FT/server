@@ -41,7 +41,6 @@ const inbox = async (user) => {
         query: gql(query),
       })
       .then(async (data) => {
-
         console.log("DATA", JSON.stringify(data, null, 2));
 
         if (data && data.data && data.data.datasets) {

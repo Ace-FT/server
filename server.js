@@ -34,7 +34,7 @@ const client = new MongoClient(MONGO_URL);
 
 const main = async () => {
     await mongoose.connect(MONGO_URL);
-    console.log("Connexion OK ✅");
+    console.log("Mongo db Connexion OK ✅");
 };
 
 // Initialising Telegram bot
@@ -268,7 +268,7 @@ process.on('uncaughtException', function(err) {
 
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
-    console.log("Running on process id", process.pid);
+    console.log("⚙️ Running on process id", process.pid);
     //await init();
     await main();
     await fetchData();

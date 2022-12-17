@@ -22,6 +22,7 @@ const URI = `/webhook/${TELEGRAM_TOKEN}`;
 const WEBHOOK_URL = SERVER_URL + URI;
 const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
+const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
 
 // Initialising app
 const app = express();
@@ -49,6 +50,7 @@ const init = async () => {
 
 // reaction on receiving message without command
 bot.on("message", (msg) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     const content = msg.text;
@@ -66,6 +68,7 @@ bot.on("message", (msg) => {
 
 // echo command
 bot.onText(/\/echo (.*)/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const resp = match[1];
     bot.sendMessage(chatId, resp);
@@ -73,6 +76,7 @@ bot.onText(/\/echo (.*)/, (msg, match) => {
 
 // to begin interaction
 bot.onText(/\/start/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -81,6 +85,7 @@ bot.onText(/\/start/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/wallet/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -90,6 +95,7 @@ bot.onText(/\/wallet/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/serverinfo/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -99,6 +105,7 @@ bot.onText(/\/serverinfo/, (msg, match) => {
 
 // to wallet address to database when sending /ace command
 bot.onText(/\/ace/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     ace(bot, chatId, user, msg);
@@ -106,6 +113,7 @@ bot.onText(/\/ace/, (msg, match) => {
 
 // get all pending to download files from Ace
 bot.onText(/\/inbox/, async (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -136,6 +144,7 @@ bot.onText(/\/inbox/, async (msg, match) => {
 
 // get all received files from Ace
 bot.onText(/\/history/, async (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -172,6 +181,7 @@ bot.onText(/\/history/, async (msg, match) => {
 });
 
 bot.onText(/\/commands/, (msg, match) => {
+    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     commands(bot, chatId, user);
@@ -197,7 +207,9 @@ app.get("/users", (req, res) => {
     });
 });
 
-const fetchData = async () => {
+const fetchData = async (isFirst) => {
+
+    isFirst = undefined === isFirst ? false : isFirst ; 
 
     setTimeout(async () => {
 
@@ -229,7 +241,7 @@ const fetchData = async () => {
                             const newOrders = orders.length;
                             if (DEBUG) console.log("Number of orders new:", newOrders, "old:", oldOrders);
                             if (newOrders !== oldOrders) {
-                                if (newOrders > oldOrders) {
+                                if (newOrders > oldOrders && false == isFirst ) {
                                     bot.sendMessage(
                                         chatid,
                                         `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
@@ -271,6 +283,6 @@ const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("⚙️ Running on process id", process.pid);
     //await init();
     await main();
-    await fetchData();
+    await fetchData(true);
 
 });

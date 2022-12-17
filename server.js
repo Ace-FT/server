@@ -272,10 +272,11 @@ const fetchData = async (isFirst) => {
     }, FETCHING_DATA_INTERVAL)
 };
 
+/*
 process.on('uncaughtException', function(err) {
     console.log('Caught exception unhandled exception: ' + err);
     console.error(err) ;
-});
+});*/
 
 
 const server = app.listen(process.env.PORT || 5001, async () => {

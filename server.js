@@ -281,6 +281,10 @@ process.on('uncaughtException', function(err) {
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("⚙️ Running on process id", process.pid);
+    console.log("LOGLEVEL:",  process.env.LOGLEVEL)
+    console.log("LOGLEVEL_BOT:",  process.env.LOGLEVEL_BOT)
+    console.log("TELEGRAM_TOKEN:",  process.env.TELEGRAM_TOKEN)
+
     //await init();
     await main();
     await fetchData(true);

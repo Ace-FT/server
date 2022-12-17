@@ -39,7 +39,7 @@ const main = async () => {
 };
 
 // Initialising Telegram bot
-const bot = new TelegramBot(TELEGRAM_TOKEN, { webHook: true});
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true});
 
 // initialise webhook and check if set
 const init = async () => {

@@ -277,7 +277,7 @@ process.on('uncaughtException', function(err) {
     console.log('Caught exception unhandled exception: ' + err);
     console.error(err) ;
 });*/
-
+/*
 (async ()=>{
     await main();
     const users =  await User.find();
@@ -285,7 +285,8 @@ process.on('uncaughtException', function(err) {
     
 })();
 
-return ; 
+return ;  */
+
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("⚙️ Running on process id", process.pid);

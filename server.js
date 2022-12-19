@@ -201,11 +201,11 @@ app.get("/background", (req, res) => {
 });
 
 // for fetching users
-app.get("/users", (req, res) => {
-    User.find({}).exec((err, users) => {
-        err ? res.send("Error occured") : res.json(users);
-    });
-});
+//app.get("/users", (req, res) => {
+//    User.find({}).exec((err, users) => {
+//        err ? res.send("Error occured") : res.json(users);
+//    });
+//});
 
 const fetchData = async (isFirst) => {
 
@@ -278,7 +278,14 @@ process.on('uncaughtException', function(err) {
     console.error(err) ;
 });*/
 
+(async ()=>{
+    await main();
+    const users =  await User.find();
+    console.log(users) ;
+    
+})();
 
+return ; 
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("⚙️ Running on process id", process.pid);

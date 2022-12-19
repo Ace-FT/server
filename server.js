@@ -23,7 +23,7 @@ const WEBHOOK_URL = SERVER_URL + URI;
 const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
 const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 
 // Initialising app
 const app = express();

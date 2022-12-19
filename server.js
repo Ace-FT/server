@@ -204,8 +204,17 @@ app.get("/background", (req, res) => {
 });
 
 app.post("/logger", (req, res) => {
-    console.log(new Date(), "logger - ", req.body) ;
-    res.json({"status":"ok"});
+    
+    var bodyStr = '';
+    req.on("data",function(chunk){
+        bodyStr += chunk.toString();
+    });
+    req.on("end",function(){
+        console.log(new Date(), "logger - ", bodyStr) ;
+        res.json({"status":"ok"});
+    });
+
+    
 });
 
 

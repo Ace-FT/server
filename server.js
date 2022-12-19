@@ -200,6 +200,12 @@ app.get("/background", (req, res) => {
     res.json(backgroundProvider.getCurrentBackground());
 });
 
+app.post("/logger", (req, res) => {
+    console.log(new Date(), "logger - ", req.body) ;
+    res.json({"status":"ok"});
+});
+
+
 // for fetching users
 //app.get("/users", (req, res) => {
 //    User.find({}).exec((err, users) => {

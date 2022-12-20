@@ -202,31 +202,6 @@ app.get("/background", (req, res) => {
     res.json(backgroundProvider.getCurrentBackground());
 });
 
-app.post("/logger", (req, res) => {
-    
-    try
-    {
-        console.log(new Date(), "logger - ", req.body) ;    
-    }
-    catch(err){
-        console.log("logger err", err )
-    }
-
-    res.json({"status":"ok"});
-
-    /*
-    var bodyStr = '';
-    req.on("data",function(chunk){
-        bodyStr += chunk.toString();
-    });
-    req.on("end",function(){
-        console.log(new Date(), "logger - ", bodyStr) ;
-        res.json({"status":"ok"});
-    });*/
-
-    
-});
-
 
 // for fetching users
 //app.get("/users", (req, res) => {

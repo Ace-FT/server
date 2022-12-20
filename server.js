@@ -206,11 +206,14 @@ app.post("/logger", (req, res) => {
     
     try
     {
-        console.log(new Date(), "logger - ", req.body) ;
+        console.log(new Date(), "logger - ", req.body) ;    
     }
     catch(err){
         console.log("logger err", err )
     }
+
+    res.json({"status":"ok"});
+
     /*
     var bodyStr = '';
     req.on("data",function(chunk){
@@ -299,8 +302,12 @@ const fetchData = async (isFirst) => {
 
 
 process.on('uncaughtException', function(err) {
-    console.log('Caught exception unhandled exception: ' + err);
+    console.log('Caught exception unhandled exception: ',  err);
     console.error(err) ;
+});
+
+process.on('unhandledRejection', function (error, p) {
+	console.log("\x1b[31m","Error: ", error.message, "\x1b[0m");
 });
 
 /*

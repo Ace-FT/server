@@ -285,15 +285,16 @@ const fetchData = async (isFirst) => {
             });
         }
 
-        await fetchData()
+        await fetchData(false) ;
     }, FETCHING_DATA_INTERVAL)
 };
 
-/*
+
 process.on('uncaughtException', function(err) {
     console.log('Caught exception unhandled exception: ' + err);
     console.error(err) ;
-});*/
+});
+
 /*
 (async ()=>{
     await main();
@@ -314,5 +315,5 @@ const server = app.listen(process.env.PORT || 5001, async () => {
     //await init();
     await main();
     await fetchData(true);
-
+    
 });

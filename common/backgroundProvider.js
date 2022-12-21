@@ -36,7 +36,6 @@ const fetchNew = () => {
             .then(res => {
                 try {
                     let ret = res.json();
-                    if (DEBUG) console.log(process.pid, "- Received from unsplash json", ret);
                     return ret;
                 }
                 catch (f) {

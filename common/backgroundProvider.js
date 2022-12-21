@@ -73,7 +73,7 @@ const fetchNew = () => {
             });
     }
     else {
-        if (DEBUG) console.log("I will not call unsplash yet. elapsedMinutes", elapsedMinutes, " BACKGROUND_FETCH_INTERVAL_MINUTES", BACKGROUND_FETCH_INTERVAL_MINUTES);
+        if (DEBUG) console.log("I will not call unsplash yet. elapsedMinutes", elapsedMinutes, " BACKGROUND_FETCH_INTERVAL_MINUTES", BACKGROUND_FETCH_INTERVAL_MINUTES, "Cache size", bgArray.length);
     }
 }
 

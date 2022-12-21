@@ -305,5 +305,6 @@ const server = app.listen(process.env.PORT || 5001, async () => {
     //await init();
     await main();
     await fetchData(true);
+    backgroundProvider.getCurrentBackground();
     
 });

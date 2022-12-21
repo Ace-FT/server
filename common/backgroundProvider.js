@@ -116,6 +116,6 @@ function getCurrentBackground() {
 
 fetchNew();
 
-setInterval(fetchNew, 3 * 60 * 1000),
+setInterval(fetchNew, 1 * 60 * 1000),
 
 module.exports = { getCurrentBackground };

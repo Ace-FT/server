@@ -47,12 +47,12 @@ const fetchNew = () => {
                 }
             }
             ).then((json) => {
-                if (DEBUG) console.log(process.pid, "- setting bgArray ", json);
+                if (DEBUG) console.log(process.pid, "- setting bgArray with ", json.length, "items");
 
                 const filtered = json.filter(image => {
                     const keep = image.width >= MIN_WIDTH && image.height >= MIN_HEIGHT;
                     if (!keep) {
-                        if (DEBUG) console.log(process.pid, "- Excluded image. Not matching criteria", JSON.stringify(image) );
+                        if (DEBUG) console.log(process.pid, "- Excluded image. Not matching criteria", image.id, "w:", image.width, "h:",image.height, "url", image.links.html, )  ;
                     }
                     return keep;
                 });
@@ -65,7 +65,7 @@ const fetchNew = () => {
                             unique.push(receivedImage);
                         }
                         else {
-                            console.log(process.pid, "- Image already cached. image id", id, "url", img.links.html)
+                            console.log(process.pid, "- Image already cached. image id", receivedImage.id, "url", img.links.html)
                         }
                     });
                     bgArray = bgArray ? bgArray.concat(unique) : unique;
@@ -121,4 +121,4 @@ fetchNew();
 
 setInterval(fetchNew, 1 * 60 * 1000),
 
-    module.exports = { getCurrentBackground };
+module.exports = { getCurrentBackground };

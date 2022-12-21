@@ -28,7 +28,7 @@ const fetchNew = () => {
     if (elapsedMinutes > Number(BACKGROUND_FETCH_INTERVAL_MINUTES)) {
         let queryUrl = providerUrl.replace("_QUERY_", topics[Math.floor(Math.random() * topics.length)]);
         lastApiCall = new Date();
-        if (DEBUG) console.log("fetching from unsplash", queryUrl);
+        if (DEBUG) console.log(process.pid, "- fetching from unsplash", queryUrl);
 
         let settings = { method: "Get" };
 
@@ -36,7 +36,7 @@ const fetchNew = () => {
             .then(res => {
                 try {
                     let ret = res.json();
-                    if (DEBUG) console.log("AA - Received from unsplash json", ret);
+                    if (DEBUG) console.log(process.pid, "- Received from unsplash json", ret);
                     return ret;
                 }
                 catch (f) {
@@ -47,7 +47,7 @@ const fetchNew = () => {
                 }
             }
             ).then((json) => {
-                if (DEBUG) console.log("BB - setting bgArray ", json);
+                if (DEBUG) console.log(process.pid, "- setting bgArray ", json);
 
                 const filtered = json.filter( image => { return image.width >= MIN_WIDTH && image.height >= MIN_HEIGHT ; } ) ;
 
@@ -62,7 +62,7 @@ const fetchNew = () => {
                         }
                         else
                         {
-                            console.log("Image already cached. image id", id, "url", img.links.html)
+                            console.log(process.pid, "- Image already cached. image id", id, "url", img.links.html)
                         }
                     });
                     bgArray =  bgArray ? bgArray.concat(unique) : unique;
@@ -73,7 +73,7 @@ const fetchNew = () => {
             });
     }
     else {
-        if (DEBUG) console.log("I will not call unsplash yet. elapsedMinutes", elapsedMinutes, " BACKGROUND_FETCH_INTERVAL_MINUTES", BACKGROUND_FETCH_INTERVAL_MINUTES, "Cache size", bgArray.length);
+        if (DEBUG) console.log(`${process.pid} - I will not call unsplash yet. elapsedMinutes ${elapsedMinutes} | Fetch Interval ${BACKGROUND_FETCH_INTERVAL_MINUTES} | Cache size ${bgArray.length}`);
     }
 }
 
@@ -99,7 +99,7 @@ function getCurrentBackground() {
         if ((!currentBg || elapsedMinutes > Number(BACKGROUND_DISPLAY_MINUTES)) && bgArray.length > 0) {
             lastRenewTime = new Date();
             currentBg = bgArray.shift();
-            if (DEBUG) console.log(bgArray.length, "images cached. Now service image for creative mode:", currentBg.id, currentBg.description, currentBg.urls.full);
+            if (DEBUG) console.log(process.pid, "-", bgArray.length, "images cached. Now service image for creative mode:", currentBg.id, currentBg.description, currentBg.urls.full);
         }
 
         if (bgArray.length == 0 || !currentBg) {

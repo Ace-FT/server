@@ -23,6 +23,7 @@ const WEBHOOK_URL = SERVER_URL + URI;
 const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
 const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
+const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER =="debug"; 
 // const bodyParser = require('body-parser');
 
 // Initialising app
@@ -277,12 +278,11 @@ const fetchData = async (isFirst) => {
 
 
 process.on('uncaughtException', function(err) {
-    console.log('Caught exception unhandled exception: ',  err);
-    console.error(err) ;
+    console.error(process.pid, '- Caught exception unhandled exception: ',  err);
 });
 
 process.on('unhandledRejection', function (error, p) {
-	console.log("\x1b[31m","Error: ", error.message, "\x1b[0m");
+	console.error(process.pid, "- \x1b[31m","Error: ", error.message, "\x1b[0m");
 });
 
 /*
@@ -297,9 +297,10 @@ return ;  */
 
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
-    console.log("⚙️ Running on process id", process.pid);
+    console.log("Running on process id", process.pid);
     console.log("LOGLEVEL:",  process.env.LOGLEVEL, "DEBUG", DEBUG) ;
     console.log("LOGLEVEL_BOT:",  process.env.LOGLEVEL_BOT, "DEBUG_BOT", DEBUG_BOT) ;
+    console.log("LOG_LEVEL_BACKGROUNDPROVIDER:",  process.env.LOG_LEVEL_BACKGROUNDPROVIDER, "DEBUG_BACKGROUNDPROVIDER", DEBUG_BACKGROUNDPROVIDER) ;
     console.log("TELEGRAM_TOKEN:",  process.env.TELEGRAM_TOKEN)
 
     //await init();

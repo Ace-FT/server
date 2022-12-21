@@ -3,6 +3,8 @@ const defaultBackgrounds = require("./defaultBackgrounds.js");
 const { UNSPLASH_API_KEY } = process.env;
 const { BACKGROUND_DISPLAY_MINUTES, BACKGROUND_FETCH_INTERVAL_MINUTES, BACKGROUND_TOPICS } = process.env;
 const DEBUG = process.env.LOGLEVEL == "debug";
+const MIN_WIDTH  = parseInt(process.env.MIN_WIDTH,10);
+const MIN_HEIGHT = parseInt(process.env.MIN_HEIGHT,10);
 
 
 var bgArray = []; //defaultBackgrounds.list;
@@ -12,12 +14,12 @@ var lastApiCall = new Date(1999, 11, 16);
 const topics = BACKGROUND_TOPICS.split(',');
 
 
-const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=3&client_id=${UNSPLASH_API_KEY}`
+const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=5&orientation=landscape&client_id=${UNSPLASH_API_KEY}`
 
 
 const fetchNew = () => {
 
-    if (bgArray && bgArray.length > 20) { if (DEBUG) console.log("Not feteching from unsspash, there are enough items in cache", bgArray.length); return ; }
+    if (bgArray && bgArray.length > 50) { if (DEBUG) console.log("Not feteching from unsspash, there are enough items in cache", bgArray.length); return ; }
 
 
     const fetch = require('node-fetch');
@@ -46,7 +48,25 @@ const fetchNew = () => {
             }
             ).then((json) => {
                 if (DEBUG) console.log("BB - setting bgArray ", json);
-                bgArray =  bgArray ? bgArray.concat(json) : json;
+
+                const filtered = json.filter( image => { return image.width >= MIN_WIDTH && image.height >= MIN_HEIGHT ; } ) ;
+
+                var unique = [];
+                if ( filtered.length > 0)
+                {
+                    filtered.forEach(receivedImage=>{
+                        const existing = bgArray.find(cachedImage=>{ return cachedImage.id === receivedImage.id}) ; 
+                        if (undefined == existing)
+                        {
+                            unique.push(receivedImage) ;
+                        }
+                        else
+                        {
+                            console.log("Image already cached. image id", id, "url", img.links.html)
+                        }
+                    });
+                    bgArray =  bgArray ? bgArray.concat(unique) : unique;
+                }
 
                 // shuffle items
                 bgArray = bgArray.sort((a, b) => 0.5 - Math.random());

@@ -8,24 +8,30 @@ const MIN_HEIGHT = parseInt(process.env.MIN_HEIGHT, 10);
 
 
 var bgArray = []; //defaultBackgrounds.list;
+var history = []; //defaultBackgrounds.list;
+
 var currentBg = null;
 var lastRenewTime = new Date(1999, 11, 16);
 var lastApiCall = new Date(1999, 11, 16);
 const topics = BACKGROUND_TOPICS.split(',');
 
-
 const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=10&orientation=landscape&client_id=${UNSPLASH_API_KEY}`
 
 
+const clearHistory = () => {
+    history = [];
+}
+
 const fetchNew = () => {
 
-    if (bgArray && bgArray.length > 50) { if (DEBUG) console.log(process.pid, "- Not feteching from unsplash, there are enough items in cache", bgArray.length); return; }
+    if (bgArray && bgArray.length > 50) { if (DEBUG) console.log(process.pid, "- Not fetching from unsplash, there are enough items in cache", bgArray.length); return; }
 
 
     const fetch = require('node-fetch');
     const elapsedMinutes = getElapsedMinutes(lastApiCall);
 
     if (elapsedMinutes > Number(BACKGROUND_FETCH_INTERVAL_MINUTES)) {
+
         let queryUrl = providerUrl.replace("_QUERY_", topics[Math.floor(Math.random() * topics.length)]);
         lastApiCall = new Date();
         if (DEBUG) console.log(process.pid, "- fetching from unsplash", queryUrl);
@@ -42,10 +48,10 @@ const fetchNew = () => {
                     console.log("ERROR", f, "using default image list");
                     console.error(f);
                     return defaultBackgrounds.list;
-                    // bgArray = defaultBackgrounds.list ;
                 }
             }
             ).then((json) => {
+
                 if (DEBUG) console.log(process.pid, "- setting bgArray with ", json.length, "items");
 
                 const filtered = json.filter(image => {
@@ -60,7 +66,9 @@ const fetchNew = () => {
                 if (filtered.length > 0) {
                     filtered.forEach(receivedImage => {
                         const existing = bgArray.find(cachedImage => { return cachedImage.id === receivedImage.id });
-                        if (undefined == existing) {
+                        const existingHist = history.find(cachedImage => { return cachedImage.id === receivedImage.id });
+
+                        if (undefined == existing && undefined == existingHist) {
                             unique.push(receivedImage);
                         }
                         else {
@@ -105,7 +113,8 @@ function getCurrentBackground() {
         if ((!currentBg || elapsedMinutes > Number(BACKGROUND_DISPLAY_MINUTES)) && bgArray.length > 0) {
             lastRenewTime = new Date();
             currentBg = bgArray.shift();
-            if (DEBUG) console.log(process.pid, "-", bgArray.length, "images cached. Now service image for creative mode:", currentBg.id, currentBg.description, currentBg.urls.full);
+            history.push(currentBg) ;
+            if (DEBUG) console.log(process.pid, "-", bgArray.length, "images cached. Now serving image for creative mode:", currentBg.id, currentBg.description, currentBg.links.html);
         }
 
         if (bgArray.length == 0 || !currentBg) {
@@ -122,6 +131,7 @@ function getCurrentBackground() {
 
 fetchNew();
 
-setInterval(fetchNew, 10 * 60 * 1000),
+setInterval(fetchNew, 10 * 60 * 1000); // 10 minutes
+setInterval(clearHistory, 6 * 60 * 60 * 1000); // 6 hours
 
 module.exports = { getCurrentBackground };

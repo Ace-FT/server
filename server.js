@@ -38,7 +38,7 @@ const client = new MongoClient(MONGO_URL);
 
 const main = async () => {
     await mongoose.connect(MONGO_URL);
-    console.log("Mongo db Connexion OK ✅");
+    console.log(process.pid, "- Mongo db Connexion OK ✅");
 };
 
 // Initialising Telegram bot
@@ -53,7 +53,7 @@ const init = async () => {
 
 // reaction on receiving message without command
 bot.on("message", (msg) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    //if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     const content = msg.text;
@@ -71,7 +71,7 @@ bot.on("message", (msg) => {
 
 // echo command
 bot.onText(/\/echo (.*)/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const resp = match[1];
     bot.sendMessage(chatId, resp);
@@ -79,7 +79,7 @@ bot.onText(/\/echo (.*)/, (msg, match) => {
 
 // to begin interaction
 bot.onText(/\/start/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -88,7 +88,7 @@ bot.onText(/\/start/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/wallet/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -98,7 +98,7 @@ bot.onText(/\/wallet/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/serverinfo/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -108,7 +108,7 @@ bot.onText(/\/serverinfo/, (msg, match) => {
 
 // to wallet address to database when sending /ace command
 bot.onText(/\/ace/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     ace(bot, chatId, user, msg);
@@ -116,7 +116,7 @@ bot.onText(/\/ace/, (msg, match) => {
 
 // get all pending to download files from Ace
 bot.onText(/\/inbox/, async (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -147,7 +147,7 @@ bot.onText(/\/inbox/, async (msg, match) => {
 
 // get all received files from Ace
 bot.onText(/\/history/, async (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -184,7 +184,7 @@ bot.onText(/\/history/, async (msg, match) => {
 });
 
 bot.onText(/\/commands/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log("Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     commands(bot, chatId, user);
@@ -229,7 +229,7 @@ const fetchData = async (isFirst) => {
                     var chatid = usr.chat_id;
                     const telegramId = usr.telegram_id;
                     const walletAddress = usr.wallet_address;
-                    if (DEBUG) console.log("usr", usr, "walletAddress", walletAddress, "telegramId", telegramId, "chatid", chatid);
+                    if (DEBUG) console.log(process.pid, "- usr", usr, "walletAddress", walletAddress, "telegramId", telegramId, "chatid", chatid);
 
                     // Safeguard, let's not process it if the TG is added multiple times
                     //if (processedTgIds.indexOf[telegramId] > -1) return;
@@ -243,7 +243,7 @@ const fetchData = async (isFirst) => {
                     try {
                         if (undefined !=orders && orders) {
                             const newOrders = orders.length;
-                            if (DEBUG) console.log("Number of orders new:", newOrders, "old:", oldOrders);
+                            if (DEBUG) console.log(process.pid, "- Number of orders new:", newOrders, "old:", oldOrders);
                             if (newOrders !== oldOrders) {
                                 if (newOrders > oldOrders && false == isFirst ) {
                                     bot.sendMessage(

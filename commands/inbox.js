@@ -8,7 +8,7 @@ const InMemoryCache = require("apollo-cache-inmemory").InMemoryCache;
 const TelegramBot = require("node-telegram-bot-api");
 const User = require("../models/user");
 const dataQuery = require("../common/dataQuery");
-const DEBUG = process.env.LOGLEVEL == "debug";
+const DEBUG = process.env.LOGLEVEL_THEGRAPH == "debug";
 
 const linkConfig = {
     uri: process.env.API_URL,
@@ -46,6 +46,8 @@ const inbox = async(user) => {
 
     if (walletAddress) {
         const query = dataQuery.queryAsk(walletAddress);
+        if (DEBUG) console.log(process.pid, "- The graph inbox query. user:", walletAddress , "query:", query);
+
         const res = client
             .query({
                 query: gql(query),
@@ -56,9 +58,13 @@ const inbox = async(user) => {
                     let pendingItems = dataQuery.mapInboxOrders(walletAddress, data.data.datasets);
                     return pendingItems;
                 }
+                else
+                {
+                    if (DEBUG) console.log(process.pid, "- No inbox data found. user:", walletAddress);
+                }
             })
             .catch((err) => {
-                console.log("Error data fetching", err);
+                console.error(process.pid, "- Error data fetching", err);
             });
 
         return res;

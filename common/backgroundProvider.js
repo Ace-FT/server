@@ -64,10 +64,14 @@ const fetchNew = () => {
                             unique.push(receivedImage);
                         }
                         else {
-                            console.log(process.pid, "- Image already cached. image id", receivedImage.id, "url", img.links.html)
+                            console.log(process.pid, "- Image already cached. image id", receivedImage.id, "url", receivedImage.links.html)
                         }
                     });
                     bgArray = bgArray ? bgArray.concat(unique) : unique;
+                }
+                else
+                {
+                    console.log(process.pid, "- No image kept from last fetch") ; 
                 }
 
                 // shuffle items

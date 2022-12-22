@@ -19,7 +19,7 @@ const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=
 
 const fetchNew = () => {
 
-    if (bgArray && bgArray.length > 50) { if (DEBUG) console.log("Not feteching from unsspash, there are enough items in cache", bgArray.length); return; }
+    if (bgArray && bgArray.length > 50) { if (DEBUG) console.log(process.pid, "- Not feteching from unsplash, there are enough items in cache", bgArray.length); return; }
 
 
     const fetch = require('node-fetch');
@@ -122,6 +122,6 @@ function getCurrentBackground() {
 
 fetchNew();
 
-setInterval(fetchNew, 1 * 60 * 1000),
+setInterval(fetchNew, 10 * 60 * 1000),
 
 module.exports = { getCurrentBackground };

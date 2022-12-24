@@ -24,7 +24,7 @@ const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
 const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
 const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER =="debug"; 
-const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/history","/serverinfo","/commands"]
+const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/inbox","/serverinfo","/commands"]
 // const bodyParser = require('body-parser');
 
 // Initialising app

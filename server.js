@@ -24,6 +24,7 @@ const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
 const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
 const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER =="debug"; 
+const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/history","/serverinfo","/commands"]
 // const bodyParser = require('body-parser');
 
 // Initialising app
@@ -53,16 +54,23 @@ const init = async () => {
 
 // reaction on receiving message without command
 bot.on("message", (msg) => {
-    //if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    //if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
-    const content = msg.text;
+    const content = msg.text.trim();
+    let isValid = true ; 
+
     if (msg.text[0] !== "/") {
-        bot.sendMessage(
-            chatId,
-            `@${user}, I do not understand your message "${msg.text}". Please use / and use one of my commands.`
-        );
+        isValid = false ;
     }
+    else
+    {
+        if (VALID_BOT_COMMANDS.indexOf(msg.text.split(' ')[0].toLocaleLowerCase() ) == -1  )
+        isValid = false ;
+    }
+
+    if (!isValid) bot.sendMessage( chatId, `@${user}, I do not understand your message "${msg.text}". Please use / and use one of my commands.` );
+
 });
 
 //////////////////////////////////
@@ -71,7 +79,7 @@ bot.on("message", (msg) => {
 
 // echo command
 bot.onText(/\/echo (.*)/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const resp = match[1];
     bot.sendMessage(chatId, resp);
@@ -79,7 +87,7 @@ bot.onText(/\/echo (.*)/, (msg, match) => {
 
 // to begin interaction
 bot.onText(/\/start/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -88,7 +96,7 @@ bot.onText(/\/start/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/wallet/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -98,7 +106,7 @@ bot.onText(/\/wallet/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/serverinfo/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -108,7 +116,7 @@ bot.onText(/\/serverinfo/, (msg, match) => {
 
 // to wallet address to database when sending /ace command
 bot.onText(/\/ace/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     ace(bot, chatId, user, msg);
@@ -116,7 +124,7 @@ bot.onText(/\/ace/, (msg, match) => {
 
 // get all pending to download files from Ace
 bot.onText(/\/inbox/, async (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -147,7 +155,7 @@ bot.onText(/\/inbox/, async (msg, match) => {
 
 // get all received files from Ace
 bot.onText(/\/history/, async (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -184,7 +192,7 @@ bot.onText(/\/history/, async (msg, match) => {
 });
 
 bot.onText(/\/commands/, (msg, match) => {
-    if (DEBUG_BOT || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
     commands(bot, chatId, user);

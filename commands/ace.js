@@ -5,9 +5,6 @@ const inbox = require("./inbox")
 
 
 const ace = async (bot, chatId, user, msg) => {
-  bot.sendMessage(
-    chatId, `Hey @${user}! Please copy and paste here your wallet address to be added to the notification pool`
-  );
 
   const content = msg.text.toLowerCase();
 

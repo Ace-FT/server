@@ -128,6 +128,7 @@ const queryAsk = (requester) => {
     }`;
 
 
+    
     return query;
 
 };

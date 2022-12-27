@@ -5,6 +5,7 @@ const { BACKGROUND_DISPLAY_MINUTES, BACKGROUND_FETCH_INTERVAL_MINUTES, BACKGROUN
 const DEBUG = process.env.LOG_LEVEL_BACKGROUNDPROVIDER == "debug";
 const MIN_WIDTH = parseInt(process.env.MIN_WIDTH, 10);
 const MIN_HEIGHT = parseInt(process.env.MIN_HEIGHT, 10);
+const IGNORED_CREATORS = process.env.UNSPLASH_IGNORED_CREATORS ? process.env.UNSPLASH_IGNORED_CREATORS.toLocaleLowerCase().split(',') : [];
 
 
 var bgArray = []; //defaultBackgrounds.list;
@@ -19,7 +20,10 @@ const providerUrl = `https://api.unsplash.com/photos/random?query=_QUERY_&count=
 
 
 const clearHistory = () => {
-    history = [];
+    history = history.filter((item)=>{
+        let elapsedMillis = new Date() - item.lastDisplayDate ; 
+        return elapsedMillis < 24 * 3600 * 1000 ;
+    });
 }
 
 const fetchNew = () => {
@@ -55,9 +59,9 @@ const fetchNew = () => {
                 if (DEBUG) console.log(process.pid, "- setting bgArray with ", json.length, "items");
 
                 const filtered = json.filter(image => {
-                    const keep = image.width >= MIN_WIDTH && image.height >= MIN_HEIGHT;
+                    const keep = image.width >= MIN_WIDTH && image.height >= MIN_HEIGHT && IGNORED_CREATORS.indexOf(image.user.username) == -1;
                     if (!keep) {
-                        if (DEBUG) console.log(process.pid, "- Excluded image. Not matching criteria", image.id, "w:", image.width, "h:",image.height, "url", image.links.html, )  ;
+                        if (DEBUG) console.log(process.pid, "- Excluded image. Not matching criteria", image.id, "w:", image.width, "h:", image.height, "url", image.links.html,);
                     }
                     return keep;
                 });
@@ -77,9 +81,8 @@ const fetchNew = () => {
                     });
                     bgArray = bgArray ? bgArray.concat(unique) : unique;
                 }
-                else
-                {
-                    console.log(process.pid, "- No image kept from last fetch") ; 
+                else {
+                    console.log(process.pid, "- No image kept from last fetch");
                 }
 
                 // shuffle items
@@ -113,7 +116,7 @@ function getCurrentBackground() {
         if ((!currentBg || elapsedMinutes > Number(BACKGROUND_DISPLAY_MINUTES)) && bgArray.length > 0) {
             lastRenewTime = new Date();
             currentBg = bgArray.shift();
-            history.push(currentBg) ;
+            history.push({ "id": currentBg.id, "lastDisplayDate": new Date() });
             if (DEBUG) console.log(process.pid, "-", bgArray.length, "images cached. Now serving image for creative mode:", currentBg.id, currentBg.description, currentBg.links.html);
         }
 

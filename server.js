@@ -9,12 +9,14 @@ const User = require("./models/user");
 const TelegramBot = require("node-telegram-bot-api");
 const backgroundProvider = require('./common/backgroundProvider');
 
+const ace = require("./commands/ace");
+const commands = require("./commands/commands.js");
+const history = require("./commands/history.js");
+const pending = require("./commands/pending.js");
+const serverinfo = require("./commands/serverinfo");
 const wallet = require("./commands/wallet");
 const welcome = require("./commands/welcome");
-const ace = require("./commands/ace");
-const inbox = require("./commands/inbox.js");
-const commands = require("./commands/commands.js");
-const serverinfo = require("./commands/serverinfo");
+
 
 const { TELEGRAM_TOKEN, SERVER_URL, MONGO_URL, MAX_HISTORY_LENGTH } = process.env;
 const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
@@ -24,7 +26,7 @@ const FETCHING_DATA_INTERVAL = 30000 // in ms
 const DEBUG = process.env.LOGLEVEL=="debug";
 const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
 const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER =="debug"; 
-const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/inbox","/serverinfo","/commands"]
+const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/pending","/serverinfo","/commands"]
 // const bodyParser = require('body-parser');
 
 // Initialising app
@@ -123,12 +125,12 @@ bot.onText(/\/ace/, (msg, match) => {
 });
 
 // get all pending to download files from Ace
-bot.onText(/\/inbox/, async (msg, match) => {
+bot.onText(/\/pending/, async (msg, match) => {
     if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
-    var orders = await inbox(user);
+    var orders = await pending(user);
 
     if (orders) {
         const numberOfReceived = orders.length;
@@ -140,7 +142,7 @@ bot.onText(/\/inbox/, async (msg, match) => {
             listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
         }
         if (numberOfReceived === 0) {
-            answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
+            answerMessage = `Sorry @${user}, you do not have any pending item in your inbox.`;
         } else {
             answerMessage = `Hey @${user}, you have ${numberOfReceived} file transfers pending in your inbox.\n`;
         }
@@ -159,7 +161,7 @@ bot.onText(/\/history/, async (msg, match) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
-    var orders = await inbox(user);
+    var orders = await history(user);
 
     if (orders) {
 
@@ -174,7 +176,8 @@ bot.onText(/\/history/, async (msg, match) => {
         var listingAnswerMessage = "";
 
         for (var i = 0; i < numberOfReceived && i < Number(process.env.MAX_HISTORY_LENGTH); i += 1) {
-            listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
+            //listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
+            listingAnswerMessage += `\n${i + 1}. From: ${orders[i].from}        Status: ${orders[i].status}\n`
         }
         if (numberOfReceived === 0) {
             answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
@@ -244,7 +247,7 @@ const fetchData = async (isFirst) => {
 
                     processedTgIds.push(telegramId);
 
-                    var orders = await inbox(telegramId);
+                    var orders = await pending(telegramId);
                     
                     if (DEBUG) console.log(undefined != orders && null != orders ? orders.length: 0, "orders for ", walletAddress);
 

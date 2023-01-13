@@ -37,7 +37,7 @@ const client = new ApolloClient({
  * Returns the pending files at wallet address
  * @param {string | undefined} user
  */
-const inbox = async(user) => {
+const pending = async(user) => {
 
     const userSubscription = await User.findOne({ telegram_id: user }).exec();
     const walletAddress = userSubscription.wallet_address;
@@ -55,7 +55,7 @@ const inbox = async(user) => {
             .then(async(data) => {
 
                 if (data && data.data && data.data.datasets) {
-                    let pendingItems = dataQuery.mapInboxOrders(walletAddress, data.data.datasets);
+                    let pendingItems = dataQuery.mapInboxOrders(walletAddress, data.data.datasets,false);
                     return pendingItems;
                 }
                 else
@@ -74,4 +74,4 @@ const inbox = async(user) => {
 
 };
 
-module.exports = inbox;
+module.exports = pending;

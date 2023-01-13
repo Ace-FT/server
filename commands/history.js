@@ -36,7 +36,7 @@ const client = new ApolloClient({
  * Returns the pending files at wallet address
  * @param {string | undefined} user
  */
-const inbox = async (user) => {
+const history = async (user) => {
 
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
 
@@ -67,4 +67,4 @@ const inbox = async (user) => {
 
 };
 
-module.exports = inbox;
+module.exports = history;

@@ -24,7 +24,7 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
   if (DEBUG) console.log("mapInboxOrders", walletAddress, "datasets.length", datasets.length ) ; 
 
-    isHistory = isHistory ? isHistory : false ; 
+
     let mapped = await Promise.all(datasets.map(async (item) => {
 
         var inboxItem = {
@@ -93,7 +93,21 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
 
     mapped = mapped.filter((item) => {
         return null != item && item.to && item.to.toLowerCase() === walletAddress.toLowerCase();
-    })
+    });
+
+    mapped = mapped.map(async (item) => {
+      try
+      {
+        let ensLookup = await iexec.ens.lookupAddress(item.from);
+        if (ensLookup) { item.from = ensLookup; }
+      }
+      catch(exc)
+      {
+
+      }
+      
+      return item ;
+  });
 
     return mapped;
 }

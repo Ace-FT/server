@@ -23,10 +23,10 @@ const TELEGRAM_API_ENDPOINT = `https://api.telegram.org/bot${TELEGRAM_TOKEN}`;
 const URI = `/webhook/${TELEGRAM_TOKEN}`;
 const WEBHOOK_URL = SERVER_URL + URI;
 const FETCHING_DATA_INTERVAL = 30000 // in ms
-const DEBUG = process.env.LOGLEVEL=="debug";
-const DEBUG_BOT = process.env.LOGLEVEL_BOT =="debug";
-const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER =="debug"; 
-const VALID_BOT_COMMANDS=["/ace","/wallet","/history","/pending","/serverinfo","/commands"]
+const DEBUG = process.env.LOGLEVEL == "debug";
+const DEBUG_BOT = process.env.LOGLEVEL_BOT == "debug";
+const DEBUG_BACKGROUNDPROVIDER = process.env.LOG_LEVEL_BACKGROUNDPROVIDER == "debug";
+const VALID_BOT_COMMANDS = ["/ace", "/wallet", "/history", "/pending", "/serverinfo", "/commands"]
 // const bodyParser = require('body-parser');
 
 // Initialising app
@@ -45,7 +45,7 @@ const main = async () => {
 };
 
 // Initialising Telegram bot
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true});
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 // initialise webhook and check if set
 const init = async () => {
@@ -60,18 +60,17 @@ bot.on("message", (msg) => {
     const chatId = msg.chat.id;
     const user = msg.from.username;
     const content = msg.text.trim();
-    let isValid = true ; 
+    let isValid = true;
 
     if (msg.text[0] !== "/") {
-        isValid = false ;
+        isValid = false;
     }
-    else
-    {
-        if (VALID_BOT_COMMANDS.indexOf(msg.text.split(' ')[0].toLocaleLowerCase() ) == -1  )
-        isValid = false ;
+    else {
+        if (VALID_BOT_COMMANDS.indexOf(msg.text.split(' ')[0].toLocaleLowerCase()) == -1)
+            isValid = false;
     }
 
-    if (!isValid) bot.sendMessage( chatId, `@${user}, I do not understand your message "${msg.text}". Please use / and use one of my commands.` );
+    if (!isValid) bot.sendMessage(chatId, `@${user}, I do not understand your message "${msg.text}". Please use / and use one of my commands.`);
 
 });
 
@@ -81,7 +80,7 @@ bot.on("message", (msg) => {
 
 // echo command
 bot.onText(/\/echo (.*)/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const resp = match[1];
     bot.sendMessage(chatId, resp);
@@ -89,7 +88,7 @@ bot.onText(/\/echo (.*)/, (msg, match) => {
 
 // to begin interaction
 bot.onText(/\/start/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -98,7 +97,7 @@ bot.onText(/\/start/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/wallet/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -108,7 +107,7 @@ bot.onText(/\/wallet/, (msg, match) => {
 
 // to see address linked to the user's account
 bot.onText(/\/serverinfo/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -118,20 +117,36 @@ bot.onText(/\/serverinfo/, (msg, match) => {
 
 // to wallet address to database when sending /ace command
 bot.onText(/\/ace/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
     ace(bot, chatId, user, msg);
 });
 
+const inboxChatFormatter = function (order, i) {
+    let ret = "";
+    let receivedDateStr = `🗓 ${order.sendDate.toLocaleDateString('en-UK')}`;
+    let receivedTimeStr = `${order.sendDate.toLocaleTimeString('en-UK')}`.substring(0, 5);
+    ret += `\n${i + 1}. ${receivedDateStr} ${receivedTimeStr} From: ${order.from}`
+    if (order.downloadDate) {
+        let dlDateStr = `${order.downloadDate.toLocaleDateString('en-UK')}`;
+        let dlTimeStr = `${order.downloadDate.toLocaleTimeString('en-UK')}`.substring(0, 5);
+        ret += ` ✔️ You downloaded it on ${dlDateStr} ${dlTimeStr}\n`;
+    }
+    else {
+        ret += ` ⬇️ Available for download \n`;
+    }
+    return ret;
+}
+
 // get all pending to download files from Ace
 bot.onText(/\/pending/, async (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
     var orders = await pending(user);
-
+ console.log("ORDERS PENDING", orders) ; 
     if (orders) {
         const numberOfReceived = orders.length;
 
@@ -139,7 +154,7 @@ bot.onText(/\/pending/, async (msg, match) => {
         var listingAnswerMessage = "";
 
         for (var i = 0; i < numberOfReceived && i < Number(MAX_HISTORY_LENGTH); i += 1) {
-            listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
+            listingAnswerMessage += inboxChatFormatter(orders[i], i) ;
         }
         if (numberOfReceived === 0) {
             answerMessage = `Sorry @${user}, you do not have any pending item in your inbox.`;
@@ -157,7 +172,7 @@ bot.onText(/\/pending/, async (msg, match) => {
 
 // get all received files from Ace
 bot.onText(/\/history/, async (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
 
@@ -177,12 +192,13 @@ bot.onText(/\/history/, async (msg, match) => {
 
         for (var i = 0; i < numberOfReceived && i < Number(process.env.MAX_HISTORY_LENGTH); i += 1) {
             //listingAnswerMessage += `\n${i + 1}. \nFrom: ${orders[i].from}\nPrice: RLC ${orders[i].price}\nStatus: ${orders[i].status}\n`
-            listingAnswerMessage += `\n${i + 1}. From: ${orders[i].from}        Status: ${orders[i].status}\n`
+            console.log("orders[i]", orders[i]);
+            listingAnswerMessage += inboxChatFormatter(orders[i], i) ;
         }
         if (numberOfReceived === 0) {
             answerMessage = `Sorry @${user}, you do not have any file in your inbox.`;
         } else {
-            answerMessage = `Hey @${user}, you have ${numberOfReceived} file transfers pending in your inbox.\n`;
+            answerMessage = `Hey @${user}, you have ${numberOfReceived} file in your inbox history.\n`;
         }
         answerMessage += listingAnswerMessage;
 
@@ -195,7 +211,7 @@ bot.onText(/\/history/, async (msg, match) => {
 });
 
 bot.onText(/\/commands/, (msg, match) => {
-    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username) ;
+    if (DEBUG || DEBUG_BOT) console.log(process.pid, "- Bot received", msg.text, "chatid", msg.from.username);
     const chatId = msg.chat.id;
     const user = msg.from.username;
     commands(bot, chatId, user);
@@ -224,7 +240,7 @@ app.get("/background", (req, res) => {
 
 const fetchData = async (isFirst) => {
 
-    isFirst = undefined === isFirst ? false : isFirst ; 
+    isFirst = undefined === isFirst ? false : isFirst;
 
     setTimeout(async () => {
 
@@ -248,18 +264,18 @@ const fetchData = async (isFirst) => {
                     processedTgIds.push(telegramId);
 
                     var orders = await pending(telegramId);
-                    
-                    if (DEBUG) console.log(undefined != orders && null != orders ? orders.length: 0, "orders for ", walletAddress);
+
+                    if (DEBUG) console.log(undefined != orders && null != orders ? orders.length : 0, "orders for ", walletAddress);
 
                     try {
-                        if (undefined !=orders && orders) {
+                        if (undefined != orders && orders) {
                             const newOrders = orders.length;
                             if (DEBUG) console.log(process.pid, "- Number of orders new:", newOrders, "old:", oldOrders);
                             if (newOrders !== oldOrders) {
-                                if (newOrders > oldOrders && false == isFirst ) {
+                                if (newOrders > oldOrders && false == isFirst) {
                                     bot.sendMessage(
                                         chatid,
-                                        `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /inbox to see what you received.`
+                                        `Good news @${telegramId}, you have received a new file ready to be downloaded on Ace-FT! Enter /pending to see what you received.`
                                     );
                                 }
                                 usr.orders = newOrders;
@@ -283,17 +299,17 @@ const fetchData = async (isFirst) => {
             });
         }
 
-        await fetchData(false) ;
+        await fetchData(false);
     }, FETCHING_DATA_INTERVAL)
 };
 
 
-process.on('uncaughtException', function(err) {
-    console.error(process.pid, '- Caught exception unhandled exception: ',  err);
+process.on('uncaughtException', function (err) {
+    console.error(process.pid, '- Caught exception unhandled exception: ', err);
 });
 
 process.on('unhandledRejection', function (error, p) {
-	console.error(process.pid, "- \x1b[31m","Error: ", error.message, "\x1b[0m");
+    console.error(process.pid, "- \x1b[31m", "Error: ", error.message, "\x1b[0m");
 });
 
 /*
@@ -309,13 +325,13 @@ return ;  */
 const server = app.listen(process.env.PORT || 5001, async () => {
     console.log("🚀 app is running on port ", process.env.PORT || 5001);
     console.log("Running on process id", process.pid);
-    console.log("LOGLEVEL:",  process.env.LOGLEVEL, "DEBUG", DEBUG) ;
-    console.log("LOGLEVEL_BOT:",  process.env.LOGLEVEL_BOT, "DEBUG_BOT", DEBUG_BOT) ;
-    console.log("LOG_LEVEL_BACKGROUNDPROVIDER:",  process.env.LOG_LEVEL_BACKGROUNDPROVIDER, "DEBUG_BACKGROUNDPROVIDER", DEBUG_BACKGROUNDPROVIDER) ;
-    console.log("TELEGRAM_TOKEN:",  process.env.TELEGRAM_TOKEN)
+    console.log("LOGLEVEL:", process.env.LOGLEVEL, "DEBUG", DEBUG);
+    console.log("LOGLEVEL_BOT:", process.env.LOGLEVEL_BOT, "DEBUG_BOT", DEBUG_BOT);
+    console.log("LOG_LEVEL_BACKGROUNDPROVIDER:", process.env.LOG_LEVEL_BACKGROUNDPROVIDER, "DEBUG_BACKGROUNDPROVIDER", DEBUG_BACKGROUNDPROVIDER);
+    console.log("TELEGRAM_TOKEN:", process.env.TELEGRAM_TOKEN)
 
     //await init();
     await main();
     await fetchData(true);
-    
+
 });

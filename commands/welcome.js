@@ -10,7 +10,7 @@ const User = require("../models/user");
  */
 const welcome = async (bot, chatId, user) => {
   bot.sendMessage(
-    chatId, `Hey ${user}, welcome to Ace FT system! 🚀 I'm Mr ACE 🔄, Ace-FT's Telegram bot to interact with you. \nFirst, use /ace command to link your telegram account with your wallet address in order to add yourself to notification pool.\nThen use /commands to see the list of commands you can use with me`
+    chatId, `Hey ${user}, welcome to Ace FT system! 🚀 I'm Mr ACE 🔄, Ace-FT's Telegram bot to interact with you. \nFirst, use the command /ace <0xYour wallet address> to link your telegram account with your wallet address in order to add yourself to notification pool.\nThen use /commands to see the list of commands you can use with me`
   );
 };
 

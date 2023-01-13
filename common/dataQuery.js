@@ -69,7 +69,6 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
                 item.orders[0].deals &&
                 item.orders[0].deals.length > 0
             ) {
-
                 if (!isHistory) {
                   if (DEBUG) console.log("Ignored this dataset ", item.id, "for account", walletAddress , "no longer in inbox") ;
                   return null;
@@ -85,8 +84,7 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
                 }
 
             }
-
-            return inboxItem
+            return inboxItem ;
         }
 
     }));
@@ -95,19 +93,19 @@ async function mapInboxOrders(walletAddress, datasets, isHistory) {
         return null != item && item.to && item.to.toLowerCase() === walletAddress.toLowerCase();
     });
 
-    mapped = mapped.map(async (item) => {
+    mapped = await Promise.all( mapped.map(async (item) => {
       try
       {
         let ensLookup = await iexec.ens.lookupAddress(item.from);
-        if (ensLookup) { item.from = ensLookup; }
+        if (ensLookup) { item.from = ensLookup.toString(); }
       }
       catch(exc)
       {
 
       }
-      
+         
       return item ;
-  });
+  }));
 
     return mapped;
 }

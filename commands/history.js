@@ -39,7 +39,6 @@ const client = new ApolloClient({
 const history = async (user) => {
 
   const userSubscription = await User.findOne({ telegram_id: user }).exec();
-
   const walletAddress = userSubscription.wallet_address;
 
   if (walletAddress) {
@@ -51,8 +50,8 @@ const history = async (user) => {
       .then(async (data) => {
 
         if (data && data.data && data.data.datasets) {
-          let pendingItems =  dataQuery.mapInboxOrders(walletAddress, data.data.datasets, true);
-          return pendingItems;
+          let historyItems = await dataQuery.mapInboxOrders(walletAddress, data.data.datasets, true);
+          return historyItems;
         }
       })
       .catch((err) => {

@@ -7,29 +7,28 @@ const setContext = require("apollo-link-context").setContext;
 const InMemoryCache = require("apollo-cache-inmemory").InMemoryCache;
 const TelegramBot = require("node-telegram-bot-api");
 const User = require("../models/user");
-const dataQuery = require("../common/dataQuery");
-const DEBUG = process.env.LOGLEVEL_THEGRAPH == "debug";
 
-const linkConfig = {
-    uri: process.env.API_URL,
-    fetch: fetch,
-}
+const dataQuery = require("../common/dataQuery") ;
 
-const httpLink = createHttpLink(linkConfig);
+const httpLink = createHttpLink({
+  uri: process.env.API_URL,
+  fetch: fetch,
+});
+
 
 const client = new ApolloClient({
-    link: httpLink,
-    cache: new InMemoryCache(),
-    defaultOptions: {
-        watchQuery: {
-            fetchPolicy: 'no-cache',
-            errorPolicy: 'ignore',
-        },
-        query: {
-            fetchPolicy: 'no-cache',
-            errorPolicy: 'all',
-        }
+  link: httpLink,
+  cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
     }
+  }
 });
 
 
@@ -37,40 +36,33 @@ const client = new ApolloClient({
  * Returns the pending files at wallet address
  * @param {string | undefined} user
  */
-const pending = async(user) => {
+const pending = async (user) => {
 
-    const userSubscription = await User.findOne({ telegram_id: user }).exec();
-    const walletAddress = userSubscription.wallet_address;
+  const userSubscription = await User.findOne({ telegram_id: user }).exec();
+  const walletAddress = userSubscription.wallet_address;
 
-    if (DEBUG) console.log("userSubscription", userSubscription, "WA", walletAddress);
+  if (walletAddress) {
+    const query = dataQuery.queryAsk(walletAddress);
+    const res = client
+      .query({
+        query: gql(query),
+      })
+      .then(async (data) => {
 
-    if (walletAddress) {
-        const query = dataQuery.queryAsk(walletAddress);
-        if (DEBUG) console.log(process.pid, "- The graph inbox query. user:", walletAddress , "query:", query);
+        if (data && data.data && data.data.datasets) {
+          let pendingItems = await dataQuery.mapInboxOrders(walletAddress, data.data.datasets, false);
+          return pendingItems;
+        }
+      })
+      .catch((err) => {
+        console.log("Error data fetching", err);
+        console.error(err);
+      });
 
-        const res = client
-            .query({
-                query: gql(query),
-            })
-            .then(async(data) => {
+    return res;
+  }
 
-                if (data && data.data && data.data.datasets) {
-                    let pendingItems = dataQuery.mapInboxOrders(walletAddress, data.data.datasets,false);
-                    return pendingItems;
-                }
-                else
-                {
-                    if (DEBUG) console.log(process.pid, "- No inbox data found. user:", walletAddress);
-                }
-            })
-            .catch((err) => {
-                console.error(process.pid, "- Error data fetching", err);
-            });
-
-        return res;
-    }
-
-    return null;
+  return null;
 
 };
 
